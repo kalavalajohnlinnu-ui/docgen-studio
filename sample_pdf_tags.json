@@ -1,0 +1,472 @@
+{
+  "Capacity_kW": {
+    "name": "Capacity_kW",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 0,
+        "x": 120.2,
+        "y": 625.9,
+        "w": 118.3,
+        "h": 16.0,
+        "top": 150.1
+      },
+      {
+        "page": 5,
+        "x": 78.3,
+        "y": 399.8,
+        "w": 461.4,
+        "h": 141.4,
+        "top": 250.8
+      }
+    ]
+  },
+  "Customer_Type": {
+    "name": "Customer_Type",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 0,
+        "x": 242.9,
+        "y": 333.7,
+        "w": 167.2,
+        "h": 308.2,
+        "top": 150.1
+      }
+    ]
+  },
+  "Panel_Wattage": {
+    "name": "Panel_Wattage",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 0,
+        "x": 181.2,
+        "y": 610.6,
+        "w": 305.3,
+        "h": 16.1,
+        "top": 165.3
+      },
+      {
+        "page": 4,
+        "x": 88.4,
+        "y": 134.8,
+        "w": 294.2,
+        "h": 415.1,
+        "top": 242.1
+      },
+      {
+        "page": 5,
+        "x": 134.5,
+        "y": 313.3,
+        "w": 265.4,
+        "h": 159.2,
+        "top": 319.5
+      }
+    ]
+  },
+  "Panel_Technology": {
+    "name": "Panel_Technology",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 0,
+        "x": 181.2,
+        "y": 610.6,
+        "w": 305.3,
+        "h": 16.1,
+        "top": 165.3
+      },
+      {
+        "page": 4,
+        "x": 88.4,
+        "y": 134.8,
+        "w": 294.2,
+        "h": 415.1,
+        "top": 242.1
+      },
+      {
+        "page": 5,
+        "x": 134.5,
+        "y": 313.3,
+        "w": 265.4,
+        "h": 159.2,
+        "top": 319.5
+      }
+    ]
+  },
+  "Customer_Name": {
+    "name": "Customer_Name",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 0,
+        "x": 242.9,
+        "y": 333.7,
+        "w": 167.2,
+        "h": 308.2,
+        "top": 150.1
+      }
+    ]
+  },
+  "5C5a_k_p_W_ac_O_ity_n___G_k_r_W_id": {
+    "name": "5C5a_k_p_W_ac_O_ity_n___G_k_r_W_id",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 69.2,
+        "y": 134.8,
+        "w": 451.8,
+        "h": 464.1,
+        "top": 193.2
+      }
+    ]
+  },
+  "3P2r5oj0e0c0t__Cost_INR": {
+    "name": "3P2r5oj0e0c0t__Cost_INR",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 341.2,
+        "y": 388.0,
+        "w": 216.6,
+        "h": 245.3,
+        "top": 158.8
+      }
+    ]
+  },
+  "a_M_c_in_it___y_C_u__m_5_u_5_la_t_i_k_ve_W__C_p_a_p_acity_kWp": {
+    "name": "a_M_c_in_it___y_C_u__m_5_u_5_la_t_i_k_ve_W__C_p_a_p_acity_kWp",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 69.2,
+        "y": 271.2,
+        "w": 451.8,
+        "h": 256.2,
+        "top": 264.6
+      }
+    ]
+  },
+  "Panel_Category": {
+    "name": "Panel_Category",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 88.4,
+        "y": 134.8,
+        "w": 294.2,
+        "h": 415.1,
+        "top": 242.1
+      },
+      {
+        "page": 5,
+        "x": 134.5,
+        "y": 313.3,
+        "w": 265.4,
+        "h": 159.2,
+        "top": 319.5
+      }
+    ]
+  },
+  "Pdaannie_l__LBumrainnodu": {
+    "name": "Pdaannie_l__LBumrainnodu",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 110.3,
+        "y": 468.6,
+        "w": 92.7,
+        "h": 14.9,
+        "top": 308.5
+      }
+    ]
+  },
+  "Subsidy_INR": {
+    "name": "Subsidy_INR",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 315.2,
+        "y": 388.0,
+        "w": 242.6,
+        "h": 173.8,
+        "top": 230.2
+      }
+    ]
+  },
+  "Inverter_Capacity_kVA": {
+    "name": "Inverter_Capacity_kVA",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 69.2,
+        "y": 271.2,
+        "w": 451.8,
+        "h": 177.8,
+        "top": 342.9
+      },
+      {
+        "page": 5,
+        "x": 78.3,
+        "y": 399.8,
+        "w": 461.4,
+        "h": 141.4,
+        "top": 250.8
+      }
+    ]
+  },
+  "WInavaerretee_r___BProalyncda": {
+    "name": "WInavaerretee_r___BProalyncda",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 113.3,
+        "y": 401.5,
+        "w": 97.4,
+        "h": 14.5,
+        "top": 376.0
+      },
+      {
+        "page": 5,
+        "x": 175.2,
+        "y": 384.9,
+        "w": 97.4,
+        "h": 14.4,
+        "top": 392.6
+      }
+    ]
+  },
+  "Net__Cost_INR": {
+    "name": "Net__Cost_INR",
+    "formula": "Project_Cost_INR - Subsidy_INR",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 314.4,
+        "y": 388.0,
+        "w": 243.4,
+        "h": 245.3,
+        "top": 158.8
+      }
+    ]
+  },
+  "Annual_Energy_Production": {
+    "name": "Annual_Energy_Production",
+    "formula": "Sp ecific_Yield(4.2) \u00d7 Min_Cumulative_Capacity_kWp \u00d7 365",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 151.1,
+        "y": 69.3,
+        "w": 385.7,
+        "h": 226.3,
+        "top": 496.4
+      }
+    ]
+  },
+  "Monthly_Energy_Production": {
+    "name": "Monthly_Energy_Production",
+    "formula": "Annual_Energy_Production \u00f7 12",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 151.1,
+        "y": 69.3,
+        "w": 385.7,
+        "h": 226.3,
+        "top": 496.4
+      }
+    ]
+  },
+  "Monthly_Bill_Savings": {
+    "name": "Monthly_Bill_Savings",
+    "formula": "Monthly_Energy_Production \u00d7 Tariff_Rs_Unit",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 201.7,
+        "y": 146.4,
+        "w": 302.8,
+        "h": 118.2,
+        "top": 527.4
+      }
+    ]
+  },
+  "Annual_Bill_Savings": {
+    "name": "Annual_Bill_Savings",
+    "formula": "Annual_Energy_Production \u00d7 Tariff_Rs_Unit",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 181.6,
+        "y": 146.4,
+        "w": 323.4,
+        "h": 149.2,
+        "top": 496.4
+      }
+    ]
+  },
+  "raTtea_risif_Rf_sR_8s_uUninti_t": {
+    "name": "raTtea_risif_Rf_sR_8s_uUninti_t",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 500.0,
+        "y": 177.7,
+        "w": 27.5,
+        "h": 12.0,
+        "top": 602.2
+      }
+    ]
+  },
+  "Savings_25yr": {
+    "name": "Savings_25yr",
+    "formula": "S(Production_y \u00d7 Tariff_y), y",
+    "occurrences": [
+      {
+        "page": 4,
+        "x": 272.9,
+        "y": 146.4,
+        "w": 165.6,
+        "h": 82.9,
+        "top": 562.7
+      }
+    ]
+  },
+  "Basic_Cost": {
+    "name": "Basic_Cost",
+    "formula": "Project_Cost_INR\nSystem Details: \u00f7 1.089",
+    "occurrences": [
+      {
+        "page": 5,
+        "x": 36.2,
+        "y": 35.2,
+        "w": 538.6,
+        "h": 593.7,
+        "top": 163.1
+      }
+    ]
+  },
+  "5M5i_nk_WCupm_ulative_Capacity_kWp": {
+    "name": "5M5i_nk_WCupm_ulative_Capacity_kWp",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 5,
+        "x": 78.3,
+        "y": 399.8,
+        "w": 486.5,
+        "h": 141.4,
+        "top": 250.8
+      }
+    ]
+  },
+  "APdaannei_l__LBurmanindo": {
+    "name": "APdaannei_l__LBurmanindo",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 5,
+        "x": 173.2,
+        "y": 427.7,
+        "w": 96.0,
+        "h": 14.5,
+        "top": 349.8
+      }
+    ]
+  },
+  "GST__5__for_70__of_amount____18__for_30__of_amount_": {
+    "name": "GST__5__for_70__of_amount____18__for_30__of_amount_",
+    "formula": "R Psro.j e2c6t_,C5o6st1_I NR\n- Basic_Cost",
+    "occurrences": [
+      {
+        "page": 5,
+        "x": 80.5,
+        "y": 35.2,
+        "w": 420.7,
+        "h": 593.7,
+        "top": 163.1
+      }
+    ]
+  },
+  "Project_Cost_INR": {
+    "name": "Project_Cost_INR",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 5,
+        "x": 36.2,
+        "y": 35.2,
+        "w": 538.6,
+        "h": 593.7,
+        "top": 163.1
+      }
+    ]
+  },
+  "Net_Cost_INR": {
+    "name": "Net_Cost_INR",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 5,
+        "x": 36.2,
+        "y": 35.2,
+        "w": 538.6,
+        "h": 593.7,
+        "top": 163.1
+      }
+    ]
+  },
+  "Inverter_Warranty_Years": {
+    "name": "Inverter_Warranty_Years",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 6,
+        "x": 64.7,
+        "y": 479.2,
+        "w": 500.6,
+        "h": 111.0,
+        "top": 201.9
+      }
+    ]
+  },
+  "rkC_ivil_Work_Toggle": {
+    "name": "rkC_ivil_Work_Toggle",
+    "formula": "",
+    "occurrences": [
+      {
+        "page": 6,
+        "x": 372.9,
+        "y": 148.8,
+        "w": 101.7,
+        "h": 12.0,
+        "top": 631.1
+      }
+    ]
+  },
+  "O5f0fe5r_2V0a2li6d__Date": {
+    "name": "O5f0fe5r_2V0a2li6d__Date",
+    "formula": "Proposal_Date + 7 days",
+    "occurrences": [
+      {
+        "page": 6,
+        "x": 116.9,
+        "y": 128.6,
+        "w": 335.1,
+        "h": 155.3,
+        "top": 508.0
+      }
+    ]
+  }
+}

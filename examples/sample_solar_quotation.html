@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head><title>Solar Proposal - <Customer_Name></title>
+<style>
+body { font-family: Arial; margin: 40px; }
+.header { background: #FF9A2E; padding: 20px; color: white; }
+.section { margin: 20px 0; border: 1px solid #ddd; padding: 15px; }
+table { width: 100%; border-collapse: collapse; }
+td, th { border: 1px solid #ddd; padding: 8px; }
+@media print { @page { size: A4; margin: 0; } }
+</style>
+</head>
+<body>
+<div class=header>
+  <h1>Solar Proposal</h1>
+  <h2><System_Capacity_kW> kW Solar PV System</h2>
+  <p>Prepared for: <Customer_Name></p>
+</div>
+<div class=section>
+  <h3>Customer Details</h3>
+  <p>Name: <Customer_Name></p>
+  <p>Phone: <Mobile_Number></p>
+  <p>Email: <Email></p>
+  <p>Address: <Address></p>
+</div>
+<div class=section>
+  <h3>System Details</h3>
+  <table>
+    <tr><th>Component</th><th>Specification</th></tr>
+    <tr><td>System Capacity</td><td><System_Capacity_kW> kW</td></tr>
+    <tr><td>Solar Panels</td><td><Panel_Wattage> Wp - <Panel_Brand></td></tr>
+    <tr><td>Inverter</td><td><Inverter_Capacity_kW> kW - <Inverter_Brand></td></tr>
+  </table>
+</div>
+<div class=section>
+  <h3>Financial Summary</h3>
+  <table>
+    <tr><td>Project Cost</td><td>Rs. <Project_Cost_INR></td></tr>
+    <tr><td>Government Subsidy</td><td>Rs. <Subsidy_INR></td></tr>
+    <tr><td><b>Net Cost to Customer</b></td><td><b>Rs. <Net_Cost_INR></b></td></tr>
+  </table>
+</div>
+<div class=section>
+  <h3>Energy Benefits</h3>
+  <p>Annual Energy Production: <Annual_Energy_Units> units/year</p>
+  <p>Monthly Savings: Rs. <Monthly_Savings_INR></p>
+</div>
+<p>This offer is valid till: <Offer_Valid_Date></p>
+<p><Company_Footer></p>
+</body>
+</html>

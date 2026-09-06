@@ -1,0 +1,2308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DocGen Studio — Universal Document App Creator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<!-- CDNs for browser-side processing -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+if (window.pdfjsLib) {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<!-- Pre-packaged sample data for instant demo -->
+<script src="sample_data.js"></script>
+<style>
+﻿:root {
+  --bg: #070913;
+  --surface: #0E1424;
+  --surface2: #141E34;
+  --surface3: #1B2844;
+  --border: #1E2D4A;
+  --border-light: #2A3F66;
+  --accent: #FF9A2E;
+  --accent-rgb: 255, 154, 46;
+  --accent-glow: rgba(255, 154, 46, 0.25);
+  --accent-dim: rgba(255, 154, 46, 0.12);
+  --accent2: #FFD166;
+  --text: #E2E8F0;
+  --text-muted: #8899B0;
+  --text-dim: #4B5E7D;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --info: #3B82F6;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-head: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(255,154,46,0.08) 0%, transparent 60%),
+    radial-gradient(circle at 90% 80%, rgba(59,130,246,0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+.app-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #E07A10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  box-shadow: 0 0 24px var(--accent-glow);
+}
+.brand-name {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.brand-name span { color: var(--accent); }
+.brand-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.badge-pill {
+  font-size: 0.75rem;
+  padding: 6px 14px;
+  border-radius: 30px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-glow);
+  color: var(--accent);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.steps-nav {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 36px;
+}
+.steps-nav::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+.step-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  z-index: 1;
+}
+.step-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+}
+.step-item.active .step-bubble {
+  border-color: var(--accent);
+  background: var(--surface2);
+  color: var(--accent);
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.step-item.completed .step-bubble {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #000;
+}
+.step-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  transition: color 0.2s;
+}
+.step-item.active .step-title { color: var(--accent); }
+
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 24px;
+  transition: border-color 0.25s, box-shadow 0.25s;
+}
+.step-card.active-card {
+  border-color: rgba(var(--accent-rgb), 0.4);
+  box-shadow: 0 0 30px rgba(var(--accent-rgb), 0.08);
+}
+.card-header {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  background: rgba(255,255,255,0.01);
+}
+.card-title-group { display: flex; align-items: center; gap: 14px; }
+.card-step-badge {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-glow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--accent);
+}
+.card-heading {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.card-subheading {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.card-chevron {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  transition: transform 0.25s ease;
+}
+.step-card.collapsed .card-chevron { transform: rotate(-90deg); }
+.card-body { padding: 24px; border-top: 1px solid var(--border); }
+.step-card.collapsed .card-body { display: none; }
+
+.dropzone {
+  border: 2px dashed var(--border-light);
+  border-radius: var(--radius);
+  background: var(--surface2);
+  padding: 44px 24px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+}
+.dropzone:hover, .dropzone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.dropzone input[type=file] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.dropzone-icon { font-size: 44px; margin-bottom: 12px; display: block; }
+.dropzone-title { font-family: var(--font-head); font-size: 1.15rem; font-weight: 600; margin-bottom: 6px; }
+.dropzone-desc { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px; }
+.tag-formats { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+.tag-format-chip {
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--surface3);
+  border: 1px solid var(--border-light);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.file-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+  background: var(--surface3);
+  border: 1px solid var(--border-light);
+  margin-top: 20px;
+}
+.file-bar-icon { font-size: 26px; }
+.file-bar-meta { flex: 1; }
+.file-bar-name { font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem; }
+.file-bar-info { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+.btn-remove-file {
+  background: none; border: none; color: var(--danger); font-size: 20px; cursor: pointer; opacity: 0.7;
+}
+.btn-remove-file:hover { opacity: 1; }
+
+.pdf-preview-container {
+  margin-top: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.pdf-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pdf-pages-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+.page-thumb-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface3);
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+.page-thumb-btn.active, .page-thumb-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+.page-tags-count {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.2);
+  color: var(--accent);
+}
+.canvas-wrapper {
+  position: relative;
+  overflow: auto;
+  text-align: center;
+  background: #101420;
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  max-height: 580px;
+  border: 1px solid var(--border);
+}
+.canvas-inner {
+  display: inline-block;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+}
+#pdfCanvas { display: block; max-width: 100%; }
+.tag-highlight-box {
+  position: absolute;
+  border: 2px solid var(--accent);
+  background: rgba(var(--accent-rgb), 0.25);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  z-index: 5;
+}
+.tag-highlight-box:hover {
+  background: rgba(var(--accent-rgb), 0.5);
+  border-color: #fff;
+  transform: scale(1.02);
+}
+.tag-highlight-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  background: var(--accent);
+  color: #000;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.vars-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.vars-table th {
+  background: var(--surface2);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.vars-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(30,45,74,0.6);
+  vertical-align: middle;
+}
+.vars-table tr:hover td { background: rgba(255,154,46,0.02); }
+.tag-pill {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--surface3);
+  border: 1px solid var(--border-light);
+  color: var(--accent2);
+  white-space: nowrap;
+}
+
+.input-control {
+  background: var(--surface2);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.input-control:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.input-control::placeholder { color: var(--text-dim); }
+.input-sm { padding: 6px 10px; font-size: 0.8rem; }
+select.input-control { cursor: pointer; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-head);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #E07A10);
+  color: #000;
+  box-shadow: 0 4px 18px var(--accent-glow);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 26px var(--accent-glow);
+}
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border-light);
+}
+.btn-secondary:hover {
+  background: var(--surface3);
+  border-color: var(--accent);
+}
+.btn-ghost {
+  background: none;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  font-size: 0.82rem;
+}
+.btn-ghost:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+.btn-icon { width: 32px; height: 32px; padding: 0; border-radius: var(--radius-sm); }
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.color-swatch-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.15s;
+}
+.color-swatch-btn.selected, .color-swatch-btn:hover {
+  border-color: #fff;
+  transform: scale(1.15);
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.form-field { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+.form-hint { font-size: 0.72rem; color: var(--text-dim); }
+
+.status-banner {
+  padding: 14px 18px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.status-info { background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.3); color: #93C5FD; }
+.status-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.3); color: #6EE7B7; }
+.status-warning { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #FDE68A; }
+.status-danger { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.modal-overlay.open { display: flex; }
+.modal-window {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 1100px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.9);
+}
+.modal-header {
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-body { flex: 1; background: #000; overflow: hidden; }
+.modal-body iframe { width: 100%; height: 100%; border: none; }
+
+@media(max-width: 768px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .steps-nav { display: none; }
+}
+
+</style>
+</head>
+<body>
+﻿<div class="app-container">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-name">Doc<span>Gen</span> Studio</div>
+        <div class="brand-subtitle">Universal Document App Builder</div>
+      </div>
+    </div>
+    <div class="badge-pill">
+      <span>●</span> PDF · DOCX · HTML
+    </div>
+  </header>
+
+  <!-- STEP INDICATOR -->
+  <nav class="steps-nav">
+    <div class="step-item active" id="stepNav1" onclick="navigateToStep(1)">
+      <div class="step-bubble">1</div>
+      <div class="step-title">Upload Template</div>
+    </div>
+    <div class="step-item" id="stepNav2" onclick="navigateToStep(2)">
+      <div class="step-bubble">2</div>
+      <div class="step-title">Variables & Formulas</div>
+    </div>
+    <div class="step-item" id="stepNav3" onclick="navigateToStep(3)">
+      <div class="step-bubble">3</div>
+      <div class="step-title">App Settings</div>
+    </div>
+    <div class="step-item" id="stepNav4" onclick="navigateToStep(4)">
+      <div class="step-bubble">4</div>
+      <div class="step-title">Generate & Test</div>
+    </div>
+  </nav>
+
+  <!-- STEP 1: UPLOAD TEMPLATE -->
+  <section class="step-card active-card" id="cardStep1">
+    <div class="card-header" onclick="toggleCardCollapse(1)">
+      <div class="card-title-group">
+        <div class="card-step-badge">1</div>
+        <div>
+          <div class="card-heading">Step 1 — Upload Tagged Template</div>
+          <div class="card-subheading">Upload PDF, Word (DOCX), or HTML marked with &lt;Tag_Name&gt; placeholders</div>
+        </div>
+      </div>
+      <div class="card-chevron">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="status-banner status-info">
+        <span>💡</span>
+        <div>
+          <strong>How it works:</strong> Mark any field you want to make editable with angle brackets like <code>&lt;Customer_Name&gt;</code>, <code>&lt;Capacity_kW&gt;</code>, <code>&lt;Project_Cost&gt;</code>. DocGen Studio automatically extracts all tags, positions, and formulas!
+        </div>
+      </div>
+
+      <div class="dropzone" id="mainDropzone">
+        <input type="file" id="fileUploadInput" accept=".pdf,.docx,.html,.htm">
+        <span class="dropzone-icon">📄</span>
+        <div class="dropzone-title">Drop your Document Template here</div>
+        <div class="dropzone-desc">Click to browse or drag &amp; drop file directly</div>
+        <div class="tag-formats">
+          <span class="tag-format-chip">📕 PDF (.pdf)</span>
+          <span class="tag-format-chip">📝 Word (.docx)</span>
+          <span class="tag-format-chip">🌐 HTML (.html, .htm)</span>
+        </div>
+      </div>
+
+      <!-- File Details Pill -->
+      <div id="fileDetailsBar" style="display:none"></div>
+
+      <!-- PDF Visual Inspector -->
+      <div id="pdfVisualInspector" class="pdf-preview-container" style="display:none">
+        <div class="pdf-preview-header">
+          <div>
+            <div style="font-family:var(--font-head);font-weight:600;font-size:0.95rem">Interactive PDF Page Inspector</div>
+            <div style="font-size:0.75rem;color:var(--text-muted)">Tags found on each page are highlighted with glowing boxes</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm" onclick="toggleAddMarkerMode()" id="btnAddMarker">
+              ＋ Add Visual Marker
+            </button>
+          </div>
+        </div>
+        <div class="pdf-pages-strip" id="pdfPagesStrip"></div>
+        <div class="canvas-wrapper">
+          <div class="canvas-inner" id="canvasInner">
+            <canvas id="pdfCanvas"></canvas>
+            <div id="highlightsOverlay"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" id="btnScanFile" style="display:none" onclick="startScan()">
+          🔍 Scan Tags &amp; Coordinates
+        </button>
+        <button class="btn btn-secondary" onclick="loadSampleSolarProposal()">
+          ✨ Load 7-Page Solar Proposal Sample (PDF)
+        </button>
+        <button class="btn btn-ghost" onclick="loadSampleHtmlTemplate()">
+          ✨ Load HTML Quotation Sample
+        </button>
+      </div>
+
+      <div id="scanStatusMsg" style="margin-top:14px;display:none"></div>
+    </div>
+  </section>
+
+  <!-- STEP 2: VARIABLES & FORMULAS -->
+  <section class="step-card" id="cardStep2">
+    <div class="card-header" onclick="toggleCardCollapse(2)">
+      <div class="card-title-group">
+        <div class="card-step-badge">2</div>
+        <div>
+          <div class="card-heading">Step 2 — Configure Variables &amp; Calculations <span id="tagsCountBadge" class="badge-pill" style="display:none;margin-left:8px"></span></div>
+          <div class="card-subheading">Customize display labels, input types, groupings, and real-time auto-calculation formulas</div>
+        </div>
+      </div>
+      <div class="card-chevron">▾</div>
+    </div>
+    <div class="card-body">
+      <div id="varsEmptyWarning" class="status-banner status-warning">
+        ⚠️ Upload and scan a document in Step 1, or click "Load 7-Page Solar Proposal Sample" above.
+      </div>
+
+      <div id="varsTableContainer" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div style="font-size:0.85rem;color:var(--text-muted)">
+            Configure how each variable appears in the generated application.
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="addNewVariableRow()">
+            ＋ Add Custom Variable
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="vars-table" id="variablesTable">
+            <thead>
+              <tr>
+                <th style="width:30px">#</th>
+                <th>Tag Name</th>
+                <th>Display Label</th>
+                <th>Input Type</th>
+                <th>Section Group</th>
+                <th>Default Value</th>
+                <th>Formula / Calculations</th>
+                <th>Page Occurrences</th>
+                <th style="width:40px"></th>
+              </tr>
+            </thead>
+            <tbody id="variablesTableBody"></tbody>
+          </table>
+        </div>
+
+        <!-- Formula Helper -->
+        <div style="margin-top:20px;padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+          <div style="font-family:var(--font-head);font-size:0.88rem;font-weight:600;margin-bottom:8px">
+            🧮 Formula Quick Templates (Click to apply):
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-ghost btn-sm" onclick="applyPresetFormula('Net_Cost_INR = Project_Cost_INR - Subsidy_INR')">
+              Net Cost = Project_Cost - Subsidy
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="applyPresetFormula('Annual_Energy = Capacity_kW * 4.2 * 365')">
+              Annual Energy = Capacity * 4.2 * 365
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="applyPresetFormula('Monthly_Savings = round(Annual_Energy / 12 * 8)')">
+              Monthly Savings = round(Annual / 12 * 8)
+            </button>
+            <button class="btn btn-ghost btn-sm" onclick="applyPresetFormula('GST = Project_Cost - round(Project_Cost / 1.089)')">
+              GST = Total - (Total / 1.089)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 3: APP SETTINGS -->
+  <section class="step-card" id="cardStep3">
+    <div class="card-header" onclick="toggleCardCollapse(3)">
+      <div class="card-title-group">
+        <div class="card-step-badge">3</div>
+        <div>
+          <div class="card-heading">Step 3 — Generator Branding &amp; Settings</div>
+          <div class="card-subheading">Customize the theme, brand name, currency format, and appearance of your generated app</div>
+        </div>
+      </div>
+      <div class="card-chevron">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="form-field">
+          <label class="form-label">Generator App Title</label>
+          <input class="input-control" id="appTitle" value="Solar Proposal Generator" placeholder="e.g. Proposal Generator">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Company / Brand Name</label>
+          <input class="input-control" id="companyName" value="EffiSol Energy Solutions Pvt. Ltd." placeholder="e.g. Your Company Name">
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:20px">
+        <div class="form-field">
+          <label class="form-label">Primary Accent Color</label>
+          <input class="input-control" type="color" id="primaryAccentColor" value="#FF9A2E" style="height:42px;padding:4px 8px;cursor:pointer">
+          <div class="color-picker-row">
+            <div class="color-swatch-btn selected" style="background:#FF9A2E" onclick="pickColor('#FF9A2E', this)" title="Solar Amber"></div>
+            <div class="color-swatch-btn" style="background:#3B82F6" onclick="pickColor('#3B82F6', this)" title="Electric Blue"></div>
+            <div class="color-swatch-btn" style="background:#10B981" onclick="pickColor('#10B981', this)" title="Emerald Green"></div>
+            <div class="color-swatch-btn" style="background:#8B5CF6" onclick="pickColor('#8B5CF6', this)" title="Royal Purple"></div>
+            <div class="color-swatch-btn" style="background:#F43F5E" onclick="pickColor('#F43F5E', this)" title="Ruby Red"></div>
+            <div class="color-swatch-btn" style="background:#F59E0B" onclick="pickColor('#F59E0B', this)" title="Gold"></div>
+            <div class="color-swatch-btn" style="background:#06B6D4" onclick="pickColor('#06B6D4', this)" title="Cyan"></div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">App Theme</label>
+          <select class="input-control" id="appTheme">
+            <option value="dark">🌑 Dark Obsidian (Recommended)</option>
+            <option value="light">☀️ Clean Light</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label class="form-label">Currency Format</label>
+          <select class="input-control" id="currencyFormat">
+            <option value="inr">₹ Indian Format (₹ 3,25,000 Lakhs)</option>
+            <option value="intl">$ International Format ($325,000)</option>
+            <option value="none">Raw Numbers</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="form-field">
+          <label class="form-label">Download Filename Prefix</label>
+          <input class="input-control" id="filenamePrefix" value="Proposal" placeholder="e.g. Quotation">
+          <div class="form-hint">Outputs: &lt;Prefix&gt;_&lt;CustomerName&gt;.pdf</div>
+        </div>
+        <div class="form-field">
+          <label class="form-label">App Icon / Emoji</label>
+          <input class="input-control" id="appIconEmoji" value="☀️" maxlength="4">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Company Footer Text</label>
+          <input class="input-control" id="companyFooter" value="EffiSol Energy Solutions | Professional Solar Solutions" placeholder="Footer info">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 4: GENERATE & TEST -->
+  <section class="step-card" id="cardStep4">
+    <div class="card-header" onclick="toggleCardCollapse(4)">
+      <div class="card-title-group">
+        <div class="card-step-badge">4</div>
+        <div>
+          <div class="card-heading">Step 4 — Generate Standalone App</div>
+          <div class="card-subheading">One-click creation of a zero-error, zero-server standalone HTML web app</div>
+        </div>
+      </div>
+      <div class="card-chevron">▾</div>
+    </div>
+    <div class="card-body">
+      <div id="genStatusArea"></div>
+
+      <div style="text-align:center;padding:36px 20px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)">
+        <div style="font-size:54px;margin-bottom:12px">🚀</div>
+        <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;margin-bottom:8px">
+          Ready to Build Your Document Web App
+        </div>
+        <div style="color:var(--text-muted);font-size:0.9rem;max-width:600px;margin:0 auto 24px">
+          DocGen Studio will compile your template, coordinates, formulas, and UI into a single self-contained <code>.html</code> file. Anyone can open it in any browser and generate flawless documents instantly!
+        </div>
+
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" style="font-size:1rem;padding:16px 36px" onclick="generateAndDownloadApp()">
+            🚀 Download Standalone Web App (.html)
+          </button>
+          <button class="btn btn-secondary" style="font-size:1rem;padding:16px 28px" onclick="launchLiveAppPreview()">
+            ⚡ Test &amp; Launch Live Generator
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end app-container -->
+
+<!-- MODAL: LIVE APP PREVIEW -->
+<div class="modal-overlay" id="livePreviewModal">
+  <div class="modal-window">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">⚡</span>
+        <span style="font-family:var(--font-head);font-weight:700" id="previewModalTitle">Live Generator App Preview</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeLiveAppPreview()">✕ Close Preview</button>
+    </div>
+    <div class="modal-body">
+      <iframe id="previewIframe"></iframe>
+    </div>
+  </div>
+</div>
+
+<script>
+/* DOCGEN STUDIO ENGINE */
+const state = {
+  file: null,
+  fileName: '',
+  fileType: '',
+  fileBase64: '',
+  pdfDoc: null,
+  currentPage: 1,
+  totalPages: 0,
+  pageTags: {},
+  vars: [],
+  activeMarkerMode: false
+};
+
+const INPUT_TYPES = [
+  { val: 'text', label: 'Text' },
+  { val: 'number', label: 'Number' },
+  { val: 'inr', label: 'Currency (₹ INR)' },
+  { val: 'date', label: 'Date' },
+  { val: 'tel', label: 'Phone Number' },
+  { val: 'email', label: 'Email' },
+  { val: 'select', label: 'Dropdown Select' },
+  { val: 'textarea', label: 'Multi-line Text' },
+  { val: 'calculated', label: '🧮 Auto Calculated' }
+];
+
+const PRESET_GROUPS = [
+  'Customer Details',
+  'System Specifications',
+  'Cost & Subsidy',
+  'Energy & Savings',
+  'Project Timeline',
+  'General Information'
+];
+
+function navigateToStep(stepNum) {
+  for (let i = 1; i <= 4; i++) {
+    const nav = document.getElementById('stepNav' + i);
+    const card = document.getElementById('cardStep' + i);
+    if (nav) {
+      nav.classList.remove('active', 'completed');
+      if (i < stepNum) nav.classList.add('completed');
+      if (i === stepNum) nav.classList.add('active');
+    }
+    if (card) {
+      if (i === stepNum) {
+        card.classList.remove('collapsed');
+        card.classList.add('active-card');
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }
+}
+
+function toggleCardCollapse(stepNum) {
+  const card = document.getElementById('cardStep' + stepNum);
+  if (card) card.classList.toggle('collapsed');
+}
+
+function pickColor(hex, element) {
+  document.getElementById('primaryAccentColor').value = hex;
+  document.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('selected'));
+  if (element) element.classList.add('selected');
+}
+
+function showStatus(msg, type = 'info') {
+  const box = document.getElementById('scanStatusMsg');
+  if (!box) return;
+  box.style.display = 'flex';
+  box.className = 'status-banner status-' + type;
+  box.innerHTML = msg;
+}
+
+/* FILE UPLOAD */
+const dropzone = document.getElementById('mainDropzone');
+const fileInput = document.getElementById('fileUploadInput');
+
+if (dropzone) {
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleSelectedFile(e.dataTransfer.files[0]);
+  });
+}
+
+if (fileInput) {
+  fileInput.addEventListener('change', e => {
+    if (e.target.files.length) handleSelectedFile(e.target.files[0]);
+  });
+}
+
+function handleSelectedFile(file) {
+  state.file = file;
+  state.fileName = file.name;
+  const ext = file.name.split('.').pop().toLowerCase();
+  
+  if (ext === 'pdf') state.fileType = 'pdf';
+  else if (ext === 'docx') state.fileType = 'docx';
+  else state.fileType = 'html';
+
+  const kb = (file.size / 1024).toFixed(1);
+  const icon = state.fileType === 'pdf' ? '📕' : state.fileType === 'docx' ? '📝' : '🌐';
+
+  const bar = document.getElementById('fileDetailsBar');
+  if (bar) {
+    bar.style.display = 'flex';
+    bar.className = 'file-bar';
+    bar.innerHTML = `
+      <div class="file-bar-icon">${icon}</div>
+      <div class="file-bar-meta">
+        <div class="file-bar-name">${escapeHtml(file.name)}</div>
+        <div class="file-bar-info">${kb} KB · ${state.fileType.toUpperCase()} Format Ready</div>
+      </div>
+      <button class="btn-remove-file" onclick="resetUploadedFile()" title="Remove file">✕</button>
+    `;
+  }
+
+  const btnScan = document.getElementById('btnScanFile');
+  if (btnScan) btnScan.style.display = 'inline-flex';
+  const statusMsg = document.getElementById('scanStatusMsg');
+  if (statusMsg) statusMsg.style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const bytes = new Uint8Array(ev.target.result);
+    let bin = '';
+    for (let b of bytes) bin += String.fromCharCode(b);
+    state.fileBase64 = btoa(bin);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function resetUploadedFile() {
+  state.file = null;
+  state.fileName = '';
+  state.fileType = '';
+  state.fileBase64 = '';
+  state.pdfDoc = null;
+  state.vars = [];
+  document.getElementById('fileDetailsBar').style.display = 'none';
+  document.getElementById('btnScanFile').style.display = 'none';
+  document.getElementById('pdfVisualInspector').style.display = 'none';
+  document.getElementById('varsTableContainer').style.display = 'none';
+  document.getElementById('varsEmptyWarning').style.display = 'block';
+  document.getElementById('tagsCountBadge').style.display = 'none';
+  document.getElementById('scanStatusMsg').style.display = 'none';
+  if (fileInput) fileInput.value = '';
+}
+
+async function startScan() {
+  showStatus('🔍 Scanning document structure and tag placeholders...', 'info');
+
+  try {
+    if (state.fileType === 'pdf') {
+      await scanPdfDocument();
+    } else if (state.fileType === 'docx') {
+      await scanDocxDocument();
+    } else {
+      await scanHtmlDocument();
+    }
+  } catch (err) {
+    showStatus('❌ Scan error: ' + err.message, 'danger');
+  }
+}
+
+async function scanPdfDocument() {
+  const binaryString = atob(state.fileBase64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+
+  state.pdfDoc = await pdfjsLib.getDocument({ data: bytes }).promise;
+  state.totalPages = state.pdfDoc.numPages;
+  state.pageTags = {};
+
+  const tagMap = {};
+
+  for (let pageNum = 1; pageNum <= state.totalPages; pageNum++) {
+    const page = await state.pdfDoc.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 1.0 });
+    const textContent = await page.getTextContent();
+    const items = textContent.items;
+    
+    state.pageTags[pageNum - 1] = [];
+    const fullText = items.map(it => it.str).join(' ');
+    
+    const re = /<([A-Za-z0-9_ -]+(?:=[^>]+)?)>/g;
+    let match;
+    while ((match = re.exec(fullText)) !== null) {
+      const inner = match[1].trim();
+      const parts = inner.split('=');
+      const rawName = parts[0].trim().replace(/\s+/g, '_');
+      const formula = parts.length > 1 ? parts[1].trim() : '';
+
+      const tagName = rawName.replace(/[^A-Za-z0-9_]/g, '');
+      if (!tagName || tagName.length < 2) continue;
+
+      let matchedItem = items.find(it => it.str.includes(parts[0].trim()) || it.str.includes(tagName));
+      if (!matchedItem) {
+        const words = tagName.split('_').filter(w => w.length > 2);
+        matchedItem = items.find(it => words.some(w => it.str.toLowerCase().includes(w.toLowerCase())));
+      }
+
+      let x = 70, y = 500, w = 150, h = 18;
+      if (matchedItem) {
+        x = Math.round(matchedItem.transform[4]);
+        y = Math.round(matchedItem.transform[5]);
+        w = Math.round(matchedItem.width || 120);
+        h = Math.round(matchedItem.height || matchedItem.transform[0] || 16);
+      }
+
+      if (!tagMap[tagName]) {
+        tagMap[tagName] = {
+          tag: tagName,
+          label: humanizeLabel(tagName),
+          type: guessFieldType(tagName, formula),
+          group: guessFieldGroup(tagName),
+          def: '',
+          formula: formula,
+          occurrences: []
+        };
+      }
+
+      const occ = {
+        page: pageNum - 1,
+        x: x,
+        y: y,
+        w: Math.max(w, 80),
+        h: Math.max(h, 16),
+        top: Math.round(viewport.height - y - h)
+      };
+
+      tagMap[tagName].occurrences.push(occ);
+      state.pageTags[pageNum - 1].push({ tagName, ...occ });
+    }
+  }
+
+  state.vars = Object.values(tagMap);
+  onScanCompleted();
+  renderPdfPagesStrip();
+  renderCurrentPdfPage(1);
+}
+
+async function scanDocxDocument() {
+  const binaryString = atob(state.fileBase64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+
+  const zip = await JSZip.loadAsync(bytes);
+  let allXml = '';
+  for (const filename of Object.keys(zip.files)) {
+    if (filename.endsWith('.xml')) {
+      const xml = await zip.file(filename).async('string');
+      allXml += xml + '\n';
+    }
+  }
+
+  const decoded = allXml.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+  extractTagsFromRawText(decoded);
+}
+
+async function scanHtmlDocument() {
+  const binaryString = atob(state.fileBase64);
+  let html = '';
+  try { html = decodeURIComponent(escape(binaryString)); } catch(e) { html = binaryString; }
+  extractTagsFromRawText(html);
+}
+
+function extractTagsFromRawText(text) {
+  const tagMap = {};
+  const re = /<([A-Za-z0-9_ -]+(?:=[^>]+)?)>/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const inner = m[1].trim();
+    const parts = inner.split('=');
+    const tagName = parts[0].trim().replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
+    const formula = parts.length > 1 ? parts[1].trim() : '';
+
+    if (!tagName || tagName.length < 2) continue;
+    if (!tagMap[tagName]) {
+      tagMap[tagName] = {
+        tag: tagName,
+        label: humanizeLabel(tagName),
+        type: guessFieldType(tagName, formula),
+        group: guessFieldGroup(tagName),
+        def: '',
+        formula: formula,
+        occurrences: []
+      };
+    }
+  }
+
+  state.vars = Object.values(tagMap);
+  onScanCompleted();
+}
+
+function onScanCompleted() {
+  if (state.vars.length === 0) {
+    showStatus('⚠️ No &lt;Tags&gt; detected. Please ensure variables use &lt;Angle_Brackets&gt; syntax.', 'warning');
+    return;
+  }
+
+  showStatus(`✅ Successfully detected <strong>${state.vars.length}</strong> unique variables across the document!`, 'success');
+
+  const countBadge = document.getElementById('tagsCountBadge');
+  if (countBadge) {
+    countBadge.style.display = 'inline-flex';
+    countBadge.textContent = state.vars.length + ' Tags';
+  }
+
+  document.getElementById('varsEmptyWarning').style.display = 'none';
+  document.getElementById('varsTableContainer').style.display = 'block';
+
+  renderVariablesTable();
+  navigateToStep(2);
+}
+
+/* PDF VISUAL INSPECTOR */
+function renderPdfPagesStrip() {
+  const inspector = document.getElementById('pdfVisualInspector');
+  if (inspector) inspector.style.display = 'block';
+
+  const strip = document.getElementById('pdfPagesStrip');
+  if (!strip) return;
+  strip.innerHTML = '';
+
+  for (let p = 1; p <= state.totalPages; p++) {
+    const btn = document.createElement('button');
+    btn.className = 'page-thumb-btn' + (p === state.currentPage ? ' active' : '');
+    const tagCount = (state.pageTags[p - 1] || []).length;
+    btn.innerHTML = `Page ${p} <span class="page-tags-count">${tagCount} tags</span>`;
+    btn.onclick = () => renderCurrentPdfPage(p);
+    strip.appendChild(btn);
+  }
+}
+
+async function renderCurrentPdfPage(pageNum) {
+  state.currentPage = pageNum;
+  document.querySelectorAll('.page-thumb-btn').forEach((b, idx) => {
+    b.classList.toggle('active', idx === pageNum - 1);
+  });
+
+  const page = await state.pdfDoc.getPage(pageNum);
+  const canvas = document.getElementById('pdfCanvas');
+  const overlay = document.getElementById('highlightsOverlay');
+  if (!canvas || !overlay) return;
+  overlay.innerHTML = '';
+
+  const viewport = page.getViewport({ scale: 1.3 });
+  canvas.width = viewport.width;
+  canvas.height = viewport.height;
+
+  const ctx = canvas.getContext('2d');
+  await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+  const tagsOnPage = state.pageTags[pageNum - 1] || [];
+  tagsOnPage.forEach(t => {
+    const box = document.createElement('div');
+    box.className = 'tag-highlight-box';
+
+    const scale = 1.3;
+    const left = t.x * scale;
+    const top = (viewport.height / scale - t.y - t.h) * scale;
+    const width = t.w * scale;
+    const height = t.h * scale;
+
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+    box.style.width = width + 'px';
+    box.style.height = height + 'px';
+
+    box.innerHTML = `<span class="tag-highlight-label">&lt;${t.tagName}&gt;</span>`;
+    box.title = `Tag: <${t.tagName}>\nPosition: (${t.x}, ${t.y})`;
+
+    box.onclick = () => {
+      navigateToStep(2);
+      highlightTableRow(t.tagName);
+    };
+
+    overlay.appendChild(box);
+  });
+}
+
+function toggleAddMarkerMode() {
+  state.activeMarkerMode = !state.activeMarkerMode;
+  const btn = document.getElementById('btnAddMarker');
+  if (btn) {
+    btn.style.background = state.activeMarkerMode ? 'var(--accent)' : '';
+    btn.style.color = state.activeMarkerMode ? '#000' : '';
+    btn.textContent = state.activeMarkerMode ? 'Click on Canvas to Place Marker' : '＋ Add Visual Marker';
+  }
+
+  const inner = document.getElementById('canvasInner');
+  if (inner) {
+    inner.style.cursor = state.activeMarkerMode ? 'crosshair' : 'default';
+    inner.onclick = e => {
+      if (!state.activeMarkerMode) return;
+      const rect = inner.getBoundingClientRect();
+      const scale = 1.3;
+      const clickX = Math.round((e.clientX - rect.left) / scale);
+      const clickYFromTop = Math.round((e.clientY - rect.top) / scale);
+      const canvasH = document.getElementById('pdfCanvas').height / scale;
+      const pdfY = Math.round(canvasH - clickYFromTop);
+
+      const tagName = prompt('Enter Tag Name for this marker (e.g. Inverter_Brand):');
+      if (!tagName) return;
+
+      const cleanTag = tagName.replace(/\s+/g, '_').replace(/[^A-Za-z0-9_]/g, '');
+      const newOcc = {
+        page: state.currentPage - 1,
+        x: clickX,
+        y: pdfY,
+        w: 120,
+        h: 18,
+        top: clickYFromTop
+      };
+
+      let existingVar = state.vars.find(v => v.tag === cleanTag);
+      if (!existingVar) {
+        existingVar = {
+          tag: cleanTag,
+          label: humanizeLabel(cleanTag),
+          type: guessFieldType(cleanTag, ''),
+          group: guessFieldGroup(cleanTag),
+          def: '',
+          formula: '',
+          occurrences: []
+        };
+        state.vars.push(existingVar);
+      }
+      existingVar.occurrences.push(newOcc);
+      if (!state.pageTags[state.currentPage - 1]) state.pageTags[state.currentPage - 1] = [];
+      state.pageTags[state.currentPage - 1].push({ tagName: cleanTag, ...newOcc });
+
+      renderCurrentPdfPage(state.currentPage);
+      renderVariablesTable();
+      toggleAddMarkerMode();
+      showStatus(`Added marker &lt;${cleanTag}&gt; on Page ${state.currentPage} at (${clickX}, ${pdfY})`, 'success');
+    };
+  }
+}
+
+/* VARIABLES TABLE */
+function humanizeLabel(tag) {
+  return tag.replace(/_/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/  +/g, ' ')
+    .trim();
+}
+
+function guessFieldType(tag, formula) {
+  if (formula && formula.trim().length > 0) return 'calculated';
+  const t = tag.toLowerCase();
+  if (/date|dob|valid|validity/.test(t)) return 'date';
+  if (/phone|mobile|tel|contact/.test(t)) return 'tel';
+  if (/email/.test(t)) return 'email';
+  if (/cost|price|amount|inr|rs|fee|subsidy|total|gst|tax|savings/.test(t)) return 'inr';
+  if (/net_cost|basic_cost|annual_|monthly_|savings_|units/.test(t)) return 'calculated';
+  if (/kw|kwp|watt|wattage|capacity|load|rating|units/.test(t)) return 'number';
+  if (/address|remarks|notes|description|terms/.test(t)) return 'textarea';
+  return 'text';
+}
+
+function guessFieldGroup(tag) {
+  const t = tag.toLowerCase();
+  if (/name|phone|mobile|email|address|customer|client|door|area|city|town|pincode|aadhar/.test(t)) return 'Customer Details';
+  if (/kw|kwp|panel|inverter|capacity|watt|system|spec|brand|technology|category/.test(t)) return 'System Specifications';
+  if (/cost|price|amount|inr|rs|fee|subsidy|gst|net|basic|total|tariff/.test(t)) return 'Cost & Subsidy';
+  if (/energy|units|savings|yield|annual|monthly/.test(t)) return 'Energy & Savings';
+  if (/date|valid|warranty|timeline|offer/.test(t)) return 'Project Timeline';
+  return 'General Information';
+}
+
+function renderVariablesTable() {
+  const tbody = document.getElementById('variablesTableBody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  state.vars.forEach((v, index) => {
+    const tr = document.createElement('tr');
+    tr.id = 'varRow_' + v.tag;
+
+    const typeOptions = INPUT_TYPES.map(t => 
+      `<option value="${t.val}" ${v.type === t.val ? 'selected' : ''}>${t.label}</option>`
+    ).join('');
+
+    const groupOptions = PRESET_GROUPS.map(g =>
+      `<option value="${g}" ${v.group === g ? 'selected' : ''}>${g}</option>`
+    ).join('');
+
+    const isCalc = v.type === 'calculated';
+    const occBadges = (v.occurrences || []).map(o => 
+      `<span style="font-size:10px;padding:2px 5px;background:var(--surface3);border:1px solid var(--border-light);border-radius:4px;cursor:pointer" onclick="jumpToPdfPage(${o.page+1})">P${o.page+1} (${o.x}, ${o.y})</span>`
+    ).join(' ');
+
+    tr.innerHTML = `
+      <td style="color:var(--text-dim);font-family:var(--font-mono);font-size:0.75rem">${index + 1}</td>
+      <td><span class="tag-pill">&lt;${escapeHtml(v.tag)}&gt;</span></td>
+      <td><input class="input-control input-sm" value="${escapeHtml(v.label)}" oninput="updateVarField(${index}, 'label', this.value)" style="min-width:130px"></td>
+      <td>
+        <select class="input-control input-sm" onchange="updateVarField(${index}, 'type', this.value); renderVariablesTable();" style="min-width:130px">
+          ${typeOptions}
+        </select>
+      </td>
+      <td>
+        <select class="input-control input-sm" onchange="updateVarField(${index}, 'group', this.value)" style="min-width:140px">
+          ${groupOptions}
+        </select>
+      </td>
+      <td><input class="input-control input-sm" value="${escapeHtml(v.def || '')}" oninput="updateVarField(${index}, 'def', this.value)" placeholder="default" style="min-width:90px"></td>
+      <td>
+        <input class="input-control input-sm" value="${escapeHtml(v.formula || '')}" oninput="updateVarField(${index}, 'formula', this.value)" 
+          placeholder="${isCalc ? 'e.g. Project_Cost - Subsidy' : 'optional'}"
+          style="min-width:170px;${isCalc ? 'border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.05);' : ''}">
+      </td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap;max-width:140px">${occBadges || '<span style="color:var(--text-dim)">—</span>'}</div></td>
+      <td>
+        <button class="btn btn-ghost btn-icon" onclick="deleteVarRow(${index})" title="Delete">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateVarField(index, key, val) {
+  if (state.vars[index]) state.vars[index][key] = val;
+}
+
+function deleteVarRow(index) {
+  state.vars.splice(index, 1);
+  renderVariablesTable();
+  const countBadge = document.getElementById('tagsCountBadge');
+  if (countBadge) countBadge.textContent = state.vars.length + ' Tags';
+}
+
+function addNewVariableRow() {
+  const newIndex = state.vars.length + 1;
+  state.vars.push({
+    tag: 'Custom_Field_' + newIndex,
+    label: 'Custom Field ' + newIndex,
+    type: 'text',
+    group: 'General Information',
+    def: '',
+    formula: '',
+    occurrences: []
+  });
+  renderVariablesTable();
+}
+
+function applyPresetFormula(formulaStr) {
+  const parts = formulaStr.split('=');
+  const targetTag = parts[0].trim();
+  const expression = parts[1].trim();
+
+  let targetVar = state.vars.find(v => v.tag.toLowerCase() === targetTag.toLowerCase());
+  if (targetVar) {
+    targetVar.formula = expression;
+    targetVar.type = 'calculated';
+    renderVariablesTable();
+    highlightTableRow(targetVar.tag);
+    showStatus(`Applied formula to &lt;${targetVar.tag}&gt;: = ${expression}`, 'success');
+  } else {
+    showStatus(`Target variable &lt;${targetTag}&gt; not found.`, 'info');
+  }
+}
+
+function highlightTableRow(tag) {
+  const row = document.getElementById('varRow_' + tag);
+  if (row) {
+    row.style.background = 'rgba(255,154,46,0.15)';
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { row.style.background = ''; }, 1600);
+  }
+}
+
+function jumpToPdfPage(pageNum) {
+  navigateToStep(1);
+  renderCurrentPdfPage(pageNum);
+}
+
+function loadSampleSolarProposal() {
+  if (!window.SAMPLE_PDF_B64 || window.SAMPLE_PDF_B64.length === 0) {
+    showStatus('⚠️ Pre-packaged sample not found. Please upload a PDF file directly.', 'warning');
+    return;
+  }
+
+  state.fileBase64 = window.SAMPLE_PDF_B64;
+  state.fileName = 'EffiSol_Solar_Proposal_7Pages.pdf';
+  state.fileType = 'pdf';
+
+  const bar = document.getElementById('fileDetailsBar');
+  if (bar) {
+    bar.style.display = 'flex';
+    bar.className = 'file-bar';
+    bar.innerHTML = `
+      <div class="file-bar-icon">📕</div>
+      <div class="file-bar-meta">
+        <div class="file-bar-name">EffiSol_Solar_Proposal_7Pages.pdf (7-Page Sample)</div>
+        <div class="file-bar-info">1.3 MB · Official Techno-Commercial Solar Proposal Template</div>
+      </div>
+      <button class="btn-remove-file" onclick="resetUploadedFile()" title="Remove file">✕</button>
+    `;
+  }
+
+  const btnScan = document.getElementById('btnScanFile');
+  if (btnScan) btnScan.style.display = 'none';
+
+  state.vars = [
+    { tag: 'Customer_Name', label: 'Customer Full Name', type: 'text', group: 'Customer Details', def: 'Mr. Rama Krishna', formula: '', occurrences: [{ page: 0, x: 242, y: 333, w: 200, h: 22 }] },
+    { tag: 'Customer_Type', label: 'Customer Type', type: 'select', group: 'Customer Details', def: 'Residential', formula: '', occurrences: [{ page: 0, x: 260, y: 625, w: 140, h: 18 }] },
+    { tag: 'Capacity_kW', label: 'System Capacity (kW)', type: 'number', group: 'System Specifications', def: '5.5', formula: '', occurrences: [{ page: 0, x: 120, y: 625, w: 60, h: 18 }, { page: 5, x: 78, y: 399, w: 80, h: 18 }] },
+    { tag: 'Panel_Wattage', label: 'Panel Wattage (Wp)', type: 'number', group: 'System Specifications', def: '615', formula: '', occurrences: [{ page: 0, x: 181, y: 610, w: 70, h: 16 }, { page: 4, x: 135, y: 489, w: 150, h: 16 }, { page: 5, x: 175, y: 447, w: 120, h: 16 }] },
+    { tag: 'Panel_Brand', label: 'Panel Brand', type: 'text', group: 'System Specifications', def: 'Adani / Luminous', formula: '', occurrences: [{ page: 4, x: 110, y: 474, w: 180, h: 16 }, { page: 5, x: 173, y: 432, w: 180, h: 16 }] },
+    { tag: 'Panel_Technology', label: 'Panel Technology', type: 'select', group: 'System Specifications', def: 'Topcon Bifacial', formula: '', occurrences: [{ page: 0, x: 270, y: 610, w: 160, h: 16 }, { page: 5, x: 283, y: 462, w: 180, h: 16 }] },
+    { tag: 'Inverter_Capacity_kVA', label: 'Inverter Capacity (kW)', type: 'number', group: 'System Specifications', def: '5', formula: '', occurrences: [{ page: 4, x: 69, y: 422, w: 200, h: 16 }, { page: 5, x: 250, y: 399, w: 200, h: 16 }] },
+    { tag: 'Inverter_Brand', label: 'Inverter Brand', type: 'text', group: 'System Specifications', def: 'Waaree / Polycab', formula: '', occurrences: [{ page: 4, x: 110, y: 406, w: 180, h: 16 }] },
+    { tag: 'Project_Cost_INR', label: 'Total Project Cost (₹)', type: 'inr', group: 'Cost & Subsidy', def: '325000', formula: '', occurrences: [{ page: 4, x: 315, y: 553, w: 260, h: 18 }, { page: 5, x: 478, y: 80, w: 120, h: 16 }] },
+    { tag: 'Subsidy_INR', label: 'Government Subsidy (₹)', type: 'inr', group: 'Cost & Subsidy', def: '78000', formula: '', occurrences: [{ page: 4, x: 315, y: 435, w: 260, h: 18 }] },
+    { tag: 'Net_Cost_INR', label: 'Net Cost to Customer (₹)', type: 'calculated', group: 'Cost & Subsidy', def: '247000', formula: 'Project_Cost_INR - Subsidy_INR', occurrences: [{ page: 4, x: 314, y: 403, w: 260, h: 18 }, { page: 5, x: 478, y: 62, w: 120, h: 16 }] },
+    { tag: 'Annual_Energy_Units', label: 'Annual Energy Generated (Units)', type: 'calculated', group: 'Energy & Savings', def: '8432', formula: 'Capacity_kW * 4.2 * 365', occurrences: [{ page: 4, x: 181, y: 284, w: 380, h: 18 }] },
+    { tag: 'Monthly_Energy_Units', label: 'Monthly Energy Generated (Units)', type: 'calculated', group: 'Energy & Savings', def: '703', formula: 'round(Annual_Energy_Units / 12)', occurrences: [{ page: 4, x: 181, y: 253, w: 380, h: 18 }] },
+    { tag: 'Monthly_Savings_INR', label: 'Monthly Bill Savings (₹)', type: 'calculated', group: 'Energy & Savings', def: '5624', formula: 'round(Monthly_Energy_Units * 8)', occurrences: [{ page: 4, x: 202, y: 218, w: 380, h: 18 }] },
+    { tag: 'Annual_Savings_INR', label: 'Annual Bill Savings (₹)', type: 'calculated', group: 'Energy & Savings', def: '67456', formula: 'round(Annual_Energy_Units * 8)', occurrences: [{ page: 4, x: 202, y: 198, w: 380, h: 18 }] }
+  ];
+
+  document.getElementById('appTitle').value = 'EffiSol Proposal Generator';
+  document.getElementById('companyName').value = 'EffiSol Energy Solutions Pvt. Ltd.';
+  document.getElementById('filenamePrefix').value = 'EffiSol_Solar_Proposal';
+
+  showStatus('✅ Loaded 7-Page Solar Proposal Sample with 15 configured variables and formulas!', 'success');
+
+  const countBadge = document.getElementById('tagsCountBadge');
+  if (countBadge) {
+    countBadge.style.display = 'inline-flex';
+    countBadge.textContent = '15 Tags';
+  }
+
+  document.getElementById('varsEmptyWarning').style.display = 'none';
+  document.getElementById('varsTableContainer').style.display = 'block';
+
+  renderVariablesTable();
+
+  const binaryString = atob(state.fileBase64);
+  const bytes = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
+
+  pdfjsLib.getDocument({ data: bytes }).promise.then(doc => {
+    state.pdfDoc = doc;
+    state.totalPages = doc.numPages;
+    state.pageTags = {};
+    state.vars.forEach(v => {
+      (v.occurrences || []).forEach(o => {
+        if (!state.pageTags[o.page]) state.pageTags[o.page] = [];
+        state.pageTags[o.page].push({ tagName: v.tag, ...o });
+      });
+    });
+    renderPdfPagesStrip();
+    renderCurrentPdfPage(1);
+  });
+
+  navigateToStep(2);
+}
+
+function loadSampleHtmlTemplate() {
+  const sampleHtml = `<!DOCTYPE html>
+<html>
+<head><title>Solar Proposal - <Customer_Name></title>
+<style>body{font-family:Arial;margin:40px;}.header{background:#FF9A2E;padding:20px;color:white;}.sec{margin:20px 0;border:1px solid #ddd;padding:15px;}</style>
+</head>
+<body>
+<div class="header"><h1>Solar Proposal</h1><h2><Capacity_kW> kW Solar System</h2><p>Customer: <Customer_Name></p></div>
+<div class="sec"><h3>Financials</h3><p>Cost: Rs. <Project_Cost_INR></p><p>Subsidy: Rs. <Subsidy_INR></p><p>Net: Rs. <Net_Cost_INR></p></div>
+</body>
+</html>`;
+
+  state.fileBase64 = btoa(unescape(encodeURIComponent(sampleHtml)));
+  state.fileName = 'Sample_Quotation.html';
+  state.fileType = 'html';
+
+  const bar = document.getElementById('fileDetailsBar');
+  if (bar) {
+    bar.style.display = 'flex';
+    bar.className = 'file-bar';
+    bar.innerHTML = `
+      <div class="file-bar-icon">🌐</div>
+      <div class="file-bar-meta">
+        <div class="file-bar-name">Sample_Quotation.html (HTML Template)</div>
+        <div class="file-bar-info">Print-ready HTML Proposal Template</div>
+      </div>
+      <button class="btn-remove-file" onclick="resetUploadedFile()" title="Remove file">✕</button>
+    `;
+  }
+
+  const btnScan = document.getElementById('btnScanFile');
+  if (btnScan) btnScan.style.display = 'none';
+
+  state.vars = [
+    { tag: 'Customer_Name', label: 'Customer Name', type: 'text', group: 'Customer Details', def: 'Mr. Rajesh Sharma', formula: '', occurrences: [] },
+    { tag: 'Capacity_kW', label: 'System Capacity (kW)', type: 'number', group: 'System Specifications', def: '5.5', formula: '', occurrences: [] },
+    { tag: 'Project_Cost_INR', label: 'Total Project Cost (₹)', type: 'inr', group: 'Cost & Subsidy', def: '325000', formula: '', occurrences: [] },
+    { tag: 'Subsidy_INR', label: 'Subsidy (₹)', type: 'inr', group: 'Cost & Subsidy', def: '78000', formula: '', occurrences: [] },
+    { tag: 'Net_Cost_INR', label: 'Net Cost (₹)', type: 'calculated', group: 'Cost & Subsidy', def: '247000', formula: 'Project_Cost_INR - Subsidy_INR', occurrences: [] }
+  ];
+
+  showStatus('✅ Loaded Sample HTML Template with 5 configured variables!', 'success');
+  document.getElementById('varsEmptyWarning').style.display = 'none';
+  document.getElementById('varsTableContainer').style.display = 'block';
+  renderVariablesTable();
+  navigateToStep(2);
+}
+
+/* COMPILER & GENERATOR */
+function buildAppConfig() {
+  return {
+    title: document.getElementById('appTitle').value || 'Document Generator',
+    company: document.getElementById('companyName').value || '',
+    accentColor: document.getElementById('primaryAccentColor').value || '#FF9A2E',
+    theme: document.getElementById('appTheme').value || 'dark',
+    currencyFormat: document.getElementById('currencyFormat').value || 'inr',
+    prefix: document.getElementById('filenamePrefix').value || 'Document',
+    icon: document.getElementById('appIconEmoji').value || '📋',
+    footer: document.getElementById('companyFooter').value || '',
+    templateType: state.fileType || 'pdf',
+    templateName: state.fileName || 'template.pdf'
+  };
+}
+
+function generateAndDownloadApp() {
+  if (state.vars.length === 0) {
+    alert('Please configure at least one variable before generating the application.');
+    navigateToStep(1);
+    return;
+  }
+
+  const cfg = buildAppConfig();
+  const htmlContent = compileStandaloneAppHtml(cfg, state.vars, state.fileBase64);
+
+  const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = cfg.title.replace(/[^a-zA-Z0-9_-]/g, '_') + '_Generator.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+
+  const statusArea = document.getElementById('genStatusArea');
+  if (statusArea) {
+    statusArea.innerHTML = `
+      <div class="status-banner status-success">
+        <span>🎉</span>
+        <div>
+          <strong>App Generated Successfully!</strong><br>
+          Downloaded <code>${a.download}</code>. You can send this file to anyone or open it directly in any browser!
+        </div>
+      </div>
+    `;
+  }
+}
+
+function launchLiveAppPreview() {
+  if (state.vars.length === 0) {
+    alert('Please configure at least one variable before previewing.');
+    navigateToStep(1);
+    return;
+  }
+
+  const cfg = buildAppConfig();
+  const htmlContent = compileStandaloneAppHtml(cfg, state.vars, state.fileBase64);
+
+  document.getElementById('previewModalTitle').textContent = cfg.title + ' — Live Interactive Generator';
+  const iframe = document.getElementById('previewIframe');
+  iframe.srcdoc = htmlContent;
+
+  document.getElementById('livePreviewModal').classList.add('open');
+}
+
+function closeLiveAppPreview() {
+  document.getElementById('livePreviewModal').classList.remove('open');
+  document.getElementById('previewIframe').srcdoc = '';
+}
+
+function compileStandaloneAppHtml(cfg, vars, templateBase64) {
+  const accent = cfg.accentColor;
+  const isDark = cfg.theme === 'dark';
+  const isPdf = cfg.templateType === 'pdf';
+  const isDocx = cfg.templateType === 'docx';
+
+  const groups = {};
+  vars.forEach(v => {
+    const g = v.group || 'General Information';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(v);
+  });
+
+  let calcJs = '';
+  vars.filter(v => v.type === 'calculated' && v.formula).forEach(v => {
+    let expr = v.formula;
+    vars.forEach(ov => {
+      const re = new RegExp('\\b' + escapeRegex(ov.tag) + '\\b', 'g');
+      expr = expr.replace(re, `getFieldValue('${ov.tag}')`);
+    });
+    expr = expr.replace(/\bround\b/g, 'Math.round');
+    calcJs += `
+    try {
+      const calcVal_${v.tag} = ${expr};
+      const el_${v.tag} = document.getElementById('field_${v.tag}');
+      if (el_${v.tag}) {
+        el_${v.tag}.value = isNaN(calcVal_${v.tag}) ? '' : formatNumber(calcVal_${v.tag});
+      }
+    } catch(err) {}
+`;
+  });
+
+  let formSectionsHtml = '';
+  for (const [groupName, groupVars] of Object.entries(groups)) {
+    let fieldsHtml = '';
+    let i = 0;
+    while (i < groupVars.length) {
+      const v1 = groupVars[i];
+      if (v1.type === 'textarea') {
+        fieldsHtml += `<div style="margin-bottom:14px">${renderGeneratedField(v1)}</div>`;
+        i++;
+      } else if (i + 1 < groupVars.length && groupVars[i + 1].type !== 'textarea') {
+        const v2 = groupVars[i + 1];
+        fieldsHtml += `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+            ${renderGeneratedField(v1)}
+            ${renderGeneratedField(v2)}
+          </div>`;
+        i += 2;
+      } else {
+        fieldsHtml += `<div style="margin-bottom:14px">${renderGeneratedField(v1)}</div>`;
+        i++;
+      }
+    }
+
+    formSectionsHtml += `
+      <div class="gen-section">
+        <div class="gen-section-header">
+          <div class="gen-section-icon">${getGroupIcon(groupName)}</div>
+          <div class="gen-section-title">${escapeHtml(groupName)}</div>
+        </div>
+        <div class="gen-section-body">
+          ${fieldsHtml}
+        </div>
+      </div>
+    `;
+  }
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${escapeHtml(cfg.title)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+${isPdf ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"><\/script>' : ''}
+${isDocx ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"><\/script>' : ''}
+
+<style>
+:root {
+  --bg: ${isDark ? '#080A12' : '#F8FAFC'};
+  --surface: ${isDark ? '#0F1523' : '#FFFFFF'};
+  --surface2: ${isDark ? '#151D30' : '#F1F5F9'};
+  --surface3: ${isDark ? '#1C2740' : '#E2E8F0'};
+  --border: ${isDark ? '#1F2E4A' : '#CBD5E1'};
+  --border-light: ${isDark ? '#2B3F63' : '#94A3B8'};
+  --accent: ${accent};
+  --accent-glow: rgba(${hexToRgb(accent)}, 0.25);
+  --accent-dim: rgba(${hexToRgb(accent)}, 0.12);
+  --text: ${isDark ? '#E2E8F0' : '#0F172A'};
+  --text-muted: ${isDark ? '#8899B0' : '#64748B'};
+  --text-dim: ${isDark ? '#4B5E7D' : '#94A3B8'};
+  --success: #10B981;
+  --radius: 12px;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-head: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding: 30px 20px 80px;
+  background-image: radial-gradient(circle at 50% 0%, var(--accent-dim) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+.gen-wrap { max-width: 960px; margin: 0 auto; }
+
+.gen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.gen-brand { display: flex; align-items: center; gap: 14px; }
+.gen-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #D97706);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #000;
+  box-shadow: 0 4px 20px var(--accent-glow);
+}
+.gen-title {
+  font-family: var(--font-head);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.gen-company {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gen-progress-box { min-width: 180px; text-align: right; }
+.gen-progress-bar {
+  background: var(--surface2);
+  height: 6px;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+.gen-progress-fill {
+  background: var(--accent);
+  height: 100%;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.gen-progress-text { font-size: 0.75rem; color: var(--text-muted); }
+
+.gen-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.gen-section-header {
+  padding: 16px 20px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.gen-section-icon { font-size: 16px; }
+.gen-section-title {
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+.gen-section-body { padding: 20px; }
+
+.gen-field { display: flex; flex-direction: column; gap: 6px; }
+.gen-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
+.gen-input {
+  background: var(--surface2);
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+.gen-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.gen-input.calc-input {
+  background: var(--surface3);
+  border-style: dashed;
+  color: var(--text-muted);
+  cursor: default;
+}
+select.gen-input { cursor: pointer; }
+textarea.gen-input { min-height: 75px; resize: vertical; }
+
+.gen-formula-tag {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+}
+
+.gen-actions {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.gen-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 8px;
+  font-family: var(--font-head);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.gen-btn-primary {
+  background: linear-gradient(135deg, var(--accent), #D97706);
+  color: #000;
+  box-shadow: 0 4px 18px var(--accent-glow);
+}
+.gen-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+.gen-btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border-light);
+}
+.gen-btn-secondary:hover {
+  background: var(--surface3);
+  border-color: var(--accent);
+}
+
+.gen-status {
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+  display: none;
+}
+
+@media(max-width: 600px) {
+  .gen-header { flex-direction: column; align-items: flex-start; }
+  .gen-progress-box { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<div class="gen-wrap">
+
+  <div class="gen-header">
+    <div class="gen-brand">
+      <div class="gen-logo">${escapeHtml(cfg.icon)}</div>
+      <div>
+        <div class="gen-title">${escapeHtml(cfg.title)}</div>
+        ${cfg.company ? `<div class="gen-company">${escapeHtml(cfg.company)}</div>` : ''}
+      </div>
+    </div>
+    <div class="gen-progress-box">
+      <div class="gen-progress-bar"><div class="gen-progress-fill" id="progFill"></div></div>
+      <div class="gen-progress-text" id="progText">0 / ${vars.length} fields filled</div>
+    </div>
+  </div>
+
+  <div id="genStatusBox" class="gen-status"></div>
+
+  <form id="docGeneratorForm" onsubmit="event.preventDefault();">
+    ${formSectionsHtml}
+  </form>
+
+  <div class="gen-actions">
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      ${isPdf ? `
+        <button class="gen-btn gen-btn-primary" onclick="generateOutputPdf()">
+          📥 Download Official PDF
+        </button>
+      ` : ''}
+      ${isDocx ? `
+        <button class="gen-btn gen-btn-primary" onclick="generateOutputDocx()">
+          📥 Download Word Document (DOCX)
+        </button>
+      ` : ''}
+      ${!isPdf && !isDocx ? `
+        <button class="gen-btn gen-btn-primary" onclick="printHtmlDocument()">
+          🖨️ Print / Save as PDF
+        </button>
+      ` : ''}
+      <button class="gen-btn gen-btn-secondary" onclick="saveDraft()">
+        💾 Save Draft
+      </button>
+      <button class="gen-btn gen-btn-secondary" onclick="resetForm()">
+        🔄 Reset
+      </button>
+    </div>
+    <div style="font-size:0.75rem;color:var(--text-muted)">
+      Single-File Standalone · Zero Server Needed
+    </div>
+  </div>
+
+  ${cfg.footer ? `
+    <div style="text-align:center;padding:24px 0;font-size:0.75rem;color:var(--text-muted)">
+      ${escapeHtml(cfg.footer)}
+    </div>
+  ` : ''}
+
+</div>
+
+<script>
+const TEMPLATE_B64 = "${templateBase64}";
+const TEMPLATE_TYPE = "${cfg.templateType}";
+const FILE_PREFIX = "${escapeHtml(cfg.prefix)}";
+const CURRENCY_FORMAT = "${cfg.currencyFormat}";
+const VARS_CONFIG = ${JSON.stringify(vars)};
+
+function escapeRegex(s) {
+  if (!s) return '';
+  var specials = ['.', '*', '+', '?', '^', '$', '{', '}', '(', ')', '|', '[', ']', String.fromCharCode(92)];
+  var out = '';
+  for (var i = 0; i < s.length; i++) {
+    var ch = s.charAt(i);
+    if (specials.indexOf(ch) !== -1) out += String.fromCharCode(92);
+    out += ch;
+  }
+  return out;
+}
+
+function getFieldValue(tag) {
+  const el = document.getElementById('field_' + tag);
+  if (!el) return 0;
+  const raw = el.value.toString().replace(/,/g, '').replace(/[^0-9.-]/g, '');
+  const n = parseFloat(raw);
+  return isNaN(n) ? 0 : n;
+}
+
+function formatNumber(num) {
+  if (num === null || num === undefined || isNaN(num)) return '';
+  const rounded = Math.round(num);
+  if (CURRENCY_FORMAT === 'inr') {
+    return rounded.toLocaleString('en-IN');
+  }
+  return rounded.toLocaleString('en-US');
+}
+
+function updateProgressAndCalculations() {
+  ${calcJs}
+
+  const inputs = document.querySelectorAll('.user-field');
+  let filled = 0;
+  inputs.forEach(inp => {
+    if (inp.value && inp.value.trim().length > 0) filled++;
+  });
+
+  const total = inputs.length;
+  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
+  document.getElementById('progFill').style.width = pct + '%';
+  document.getElementById('progText').textContent = filled + ' / ' + total + ' fields filled';
+}
+
+function showStatus(msg, isSuccess = true) {
+  const box = document.getElementById('genStatusBox');
+  box.style.display = 'block';
+  box.style.background = isSuccess ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)';
+  box.style.border = '1px solid ' + (isSuccess ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)');
+  box.style.color = isSuccess ? '#6EE7B7' : '#FCA5A5';
+  box.innerHTML = msg;
+}
+
+function collectFormValues() {
+  updateProgressAndCalculations();
+  const vals = {};
+  VARS_CONFIG.forEach(v => {
+    const el = document.getElementById('field_' + v.tag);
+    if (el) vals[v.tag] = el.value;
+  });
+  return vals;
+}
+
+function getOutputFilename(vals) {
+  const customerName = (vals['Customer_Name'] || vals['CustomerName'] || vals['Name'] || '').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+  return FILE_PREFIX + (customerName ? '_' + customerName : '');
+}
+
+async function generateOutputPdf() {
+  showStatus('⏳ Generating official vector PDF proposal...', true);
+  const values = collectFormValues();
+
+  try {
+    const binary = atob(TEMPLATE_B64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+    const pdfDoc = await PDFLib.PDFDocument.load(bytes);
+    const helveticaBold = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+    const pages = pdfDoc.getPages();
+
+    for (const v of VARS_CONFIG) {
+      const val = values[v.tag];
+      if (val === undefined || val === null || val === '') continue;
+
+      const formattedText = String(val);
+
+      for (const occ of (v.occurrences || [])) {
+        if (occ.page >= pages.length) continue;
+        const page = pages[occ.page];
+
+        page.drawRectangle({
+          x: Math.max(0, occ.x - 2),
+          y: Math.max(0, occ.y - 2),
+          width: occ.w + 6,
+          height: Math.max(occ.h + 4, 16),
+          color: PDFLib.rgb(1, 1, 1)
+        });
+
+        page.drawText(formattedText, {
+          x: occ.x,
+          y: occ.y,
+          size: occ.fontSize || 11,
+          font: helveticaBold,
+          color: PDFLib.rgb(0.05, 0.08, 0.15)
+        });
+      }
+    }
+
+    const modifiedBytes = await pdfDoc.save();
+    const filename = getOutputFilename(values) + '.pdf';
+    downloadBlob(new Blob([modifiedBytes], { type: 'application/pdf' }), filename);
+    showStatus('✅ <strong>' + filename + '</strong> generated and downloaded successfully!', true);
+
+  } catch (err) {
+    showStatus('❌ PDF Generation Error: ' + err.message, false);
+  }
+}
+
+async function generateOutputDocx() {
+  showStatus('⏳ Generating Word document...', true);
+  const values = collectFormValues();
+
+  try {
+    const binary = atob(TEMPLATE_B64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+    const zip = await JSZip.loadAsync(bytes.buffer);
+    for (const filename of Object.keys(zip.files)) {
+      if (!filename.endsWith('.xml') && !filename.endsWith('.rels')) continue;
+      let xml = await zip.file(filename).async('string');
+
+      xml = xml.replace(/&lt;((?:[^&]|&(?!gt;|lt;))*?)&gt;/g, (m, inner) => {
+        const t = inner.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+        return t ? '&lt;' + t + '&gt;' : m;
+      });
+
+      Object.entries(values).forEach(([tag, val]) => {
+        const safeVal = (val !== null && val !== undefined) ? String(val)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
+        const escapedTag = escapeRegex(tag).replace(/ +/g, '\\s+');
+        xml = xml.replace(new RegExp('&lt;\\s*' + escapedTag + '\\s*&gt;', 'gi'), safeVal);
+      });
+      xml = xml.replace(/&lt;[A-Za-z0-9_ -]{1,60}&gt;/g, '');
+      zip.file(filename, xml);
+    }
+
+    const outputBlob = await zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    });
+
+    const filename = getOutputFilename(values) + '.docx';
+    downloadBlob(outputBlob, filename);
+    showStatus('✅ <strong>' + filename + '</strong> generated and downloaded successfully!', true);
+
+  } catch(err) {
+    showStatus('❌ DOCX Generation Error: ' + err.message, false);
+  }
+}
+
+function printHtmlDocument() {
+  const values = collectFormValues();
+  const binary = atob(TEMPLATE_B64);
+  let html = '';
+  try { html = decodeURIComponent(escape(binary)); } catch(e) { html = binary; }
+
+  Object.entries(values).forEach(([tag, val]) => {
+    const escapedTag = escapeRegex(tag).replace(/ +/g, '\\s+');
+    html = html.replace(new RegExp('<\\s*' + escapedTag + '\\s*>', 'gi'), val || '');
+  });
+  html = html.replace(/<[A-Za-z0-9_ -]{1,60}>/g, '');
+
+  const printWin = window.open('', '_blank');
+  if (printWin) {
+    printWin.document.write(html);
+    printWin.document.close();
+    setTimeout(() => printWin.print(), 800);
+  }
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1200);
+}
+
+function saveDraft() {
+  const values = collectFormValues();
+  localStorage.setItem('docgen_draft_' + FILE_PREFIX, JSON.stringify(values));
+  showStatus('💾 Draft saved locally in your browser!', true);
+}
+
+function loadDraft() {
+  const saved = localStorage.getItem('docgen_draft_' + FILE_PREFIX);
+  if (!saved) return;
+  try {
+    const values = JSON.parse(saved);
+    Object.entries(values).forEach(([tag, val]) => {
+      const el = document.getElementById('field_' + tag);
+      if (el) el.value = val;
+    });
+    updateProgressAndCalculations();
+  } catch(e) {}
+}
+
+function resetForm() {
+  if (confirm('Reset all fields to defaults?')) {
+    document.getElementById('docGeneratorForm').reset();
+    VARS_CONFIG.forEach(v => {
+      const el = document.getElementById('field_' + v.tag);
+      if (el) el.value = v.def || '';
+    });
+    updateProgressAndCalculations();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.user-field').forEach(inp => {
+    inp.addEventListener('input', updateProgressAndCalculations);
+  });
+  loadDraft();
+  updateProgressAndCalculations();
+});
+<\/script>
+</body>
+</html>`;
+}
+
+function renderGeneratedField(v) {
+  const id = 'field_' + v.tag;
+  const isCalc = v.type === 'calculated';
+  const defVal = v.def ? escapeHtml(v.def) : '';
+
+  let inputEl = '';
+  if (isCalc) {
+    inputEl = `<input class="gen-input calc-input" id="${id}" readonly value="${defVal}">`;
+  } else if (v.type === 'textarea') {
+    inputEl = `<textarea class="gen-input user-field" id="${id}" placeholder="${escapeHtml(v.label)}">${defVal}</textarea>`;
+  } else if (v.type === 'select') {
+    const options = (v.def ? [v.def] : ['Select...']).map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('');
+    inputEl = `<select class="gen-input user-field" id="${id}">${options}</select>`;
+  } else {
+    const inputType = (v.type === 'date' || v.type === 'tel' || v.type === 'email') ? v.type : 'text';
+    inputEl = `<input type="${inputType}" class="gen-input user-field" id="${id}" value="${defVal}" placeholder="${escapeHtml(v.label)}">`;
+  }
+
+  const formulaNote = (isCalc && v.formula) ? `<div class="gen-formula-tag">= ${escapeHtml(v.formula)}</div>` : '';
+
+  return `
+    <div class="gen-field">
+      <label class="gen-label" for="${id}">${escapeHtml(v.label)}</label>
+      ${inputEl}
+      ${formulaNote}
+    </div>
+  `;
+}
+
+function getGroupIcon(groupName) {
+  const g = groupName.toLowerCase();
+  if (g.includes('customer') || g.includes('client')) return '👤';
+  if (g.includes('system') || g.includes('spec') || g.includes('technical')) return '⚙️';
+  if (g.includes('cost') || g.includes('subsidy') || g.includes('financial') || g.includes('price')) return '💰';
+  if (g.includes('energy') || g.includes('savings') || g.includes('yield')) return '⚡';
+  if (g.includes('timeline') || g.includes('date')) return '📅';
+  return '📋';
+}
+
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16) || 255;
+  const g = parseInt(hex.slice(3, 5), 16) || 154;
+  const b = parseInt(hex.slice(5, 7), 16) || 46;
+  return `${r}, ${g}, ${b}`;
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.toString()
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+﻿# Scratch build scripts
+*.py
+*.log
+src/
+chunk*.py
+fix_*.py
+clean_*.py
+patch_*.py
+write_*.py
+
+# Test generated outputs
+*.pdf
+test_*.js
+test_*.html
+Generated_*.html
+
+# OS files
+.DS_Store
+Thumbs.db
