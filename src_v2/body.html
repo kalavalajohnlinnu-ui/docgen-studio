@@ -1,0 +1,240 @@
+﻿<div class="app-wrapper">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="brand-group">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">Doc<span>Gen</span> Studio</div>
+        <div class="brand-tagline">Turn Any Document into a Working Web App</div>
+      </div>
+    </div>
+    <button class="top-demo-btn" onclick="loadDemoProposal()">
+      ✨ Try 1-Click Solar Demo
+    </button>
+  </header>
+
+  <!-- HERO EXPLANATION -->
+  <div class="hero-box">
+    <h1 class="hero-title">Create your document generator website in <span>3 simple steps</span></h1>
+    <p class="hero-subtitle">Upload your tagged PDF, Word doc, or HTML quotation. We automatically create a clean, easy-to-use web form that fills and downloads your documents on the first try.</p>
+  </div>
+
+  <!-- 3-STEP PROGRESS NAVIGATION -->
+  <div class="flow-steps">
+    <div class="flow-step-btn active" id="stepPill1" onclick="goToStep(1)">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-text-title">Upload Template</div>
+        <div class="step-text-sub">PDF, Word, or HTML</div>
+      </div>
+    </div>
+    <div class="flow-step-btn" id="stepPill2" onclick="goToStep(2)">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-text-title">Review Variables</div>
+        <div class="step-text-sub" id="varsCountSub">Auto-detected fields</div>
+      </div>
+    </div>
+    <div class="flow-step-btn" id="stepPill3" onclick="goToStep(3)">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-text-title">Get Your Web App</div>
+        <div class="step-text-sub">Download &amp; Test</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       STEP 1: UPLOAD TEMPLATE
+  ============================================== -->
+  <div class="main-card highlight-card" id="sectionStep1">
+    <div class="card-header-bar">
+      <div>
+        <div class="card-title-text">
+          <span>📄</span> Step 1 — Upload Your Document Template
+        </div>
+        <div class="card-desc-text">Upload any quotation, proposal, or agreement tagged with &lt;Placeholders&gt;</div>
+      </div>
+    </div>
+
+    <!-- Dropzone -->
+    <div class="clean-dropzone" id="uploadDropzone">
+      <input type="file" id="filePicker" accept=".pdf,.docx,.html,.htm">
+      <span class="drop-icon">☁️</span>
+      <div class="drop-main-text">Drag &amp; Drop your Document here</div>
+      <div class="drop-sub-text">or click anywhere to browse files from your computer</div>
+      <div>
+        <span class="format-pill">📕 PDF (.pdf)</span>
+        <span class="format-pill">📝 Word (.docx)</span>
+        <span class="format-pill">🌐 HTML (.html, .htm)</span>
+      </div>
+    </div>
+
+    <!-- Loaded File Bar -->
+    <div id="fileLoadedCard" style="display:none"></div>
+
+    <!-- Document Visual Previewer (for PDF) -->
+    <div id="pdfViewerArea" class="doc-preview-box" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="font-family:var(--font-head);font-weight:600;font-size:0.95rem">
+          📄 Document Page Preview
+        </div>
+        <span style="font-size:0.75rem;color:var(--text-muted)">Tags found on each page are highlighted</span>
+      </div>
+      <div class="preview-pages-nav" id="pagesNavStrip"></div>
+      <div class="canvas-wrap">
+        <div class="canvas-holder" id="canvasHolder">
+          <canvas id="pdfCanvas"></canvas>
+          <div id="canvasMarkersLayer"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action row -->
+    <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnStartScan" style="display:none" onclick="runTagScan()">
+        🔍 Scan Variables in File
+      </button>
+      <button class="btn btn-secondary" onclick="loadDemoProposal()">
+        ✨ Try 1-Click Solar Proposal Demo (7-Page PDF)
+      </button>
+      <button class="btn btn-ghost" onclick="loadDemoHtml()">
+        ✨ Try Sample HTML Quotation
+      </button>
+    </div>
+
+    <div id="statusAlertBox" style="margin-top:16px;display:none"></div>
+  </div>
+
+  <!-- ==============================================
+       STEP 2: REVIEW VARIABLES & FORMULAS
+  ============================================== -->
+  <div class="main-card" id="sectionStep2" style="display:none">
+    <div class="card-header-bar">
+      <div>
+        <div class="card-title-text">
+          <span>⚙️</span> Step 2 — Review Your Variables &amp; Formulas
+        </div>
+        <div class="card-desc-text">Every &lt;Tag&gt; in your file becomes an input field on your new web form.</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="addCustomVariable()">
+        ＋ Add Field
+      </button>
+    </div>
+
+    <div style="overflow-x:auto;border-radius:var(--radius-sm);border:1px solid var(--border)">
+      <table class="clean-table" id="varsCleanTable">
+        <thead>
+          <tr>
+            <th style="width:36px">#</th>
+            <th>Tag in Document</th>
+            <th>Field Label on Website</th>
+            <th>Field Type</th>
+            <th>Auto-Calculation Formula</th>
+            <th style="width:40px"></th>
+          </tr>
+        </thead>
+        <tbody id="varsCleanTableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Quick Formula Helpers -->
+    <div style="margin-top:18px;padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
+      <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;margin-bottom:8px">
+        🧮 Popular Auto-Calculations (Click to apply):
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Net_Cost_INR = Project_Cost_INR - Subsidy_INR')">
+          Net Cost = Cost - Subsidy
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Annual_Energy_Units = Capacity_kW * 4.2 * 365')">
+          Annual Energy = Capacity * 4.2 * 365
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Monthly_Savings_INR = round(Monthly_Energy_Units * 8)')">
+          Monthly Savings = Units * Tariff
+        </button>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;text-align:right">
+      <button class="btn btn-primary" onclick="goToStep(3)">
+        Continue to Step 3: Get Your Web App →
+      </button>
+    </div>
+  </div>
+
+  <!-- ==============================================
+       STEP 3: DOWNLOAD & TEST YOUR WEB APP
+  ============================================== -->
+  <div class="main-card" id="sectionStep3" style="display:none">
+    <div class="card-header-bar">
+      <div>
+        <div class="card-title-text">
+          <span>🚀</span> Step 3 — Get Your Standalone Web App
+        </div>
+        <div class="card-desc-text">Your document generator website is compiled and ready to use!</div>
+      </div>
+    </div>
+
+    <div class="final-action-card">
+      <div style="font-size:50px;margin-bottom:12px">⚡</div>
+      <div class="final-action-title">Your Generator Web App is Ready!</div>
+      <div class="final-action-desc">
+        Click below to download your complete web app as a single <code>.html</code> file.<br>
+        Open it anytime on your computer, send it to your team, or host it on your website. No server or login needed!
+      </div>
+
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:28px">
+        <button class="btn btn-primary" style="font-size:1.05rem;padding:16px 36px" onclick="downloadCompiledApp()">
+          🚀 Download My Generator App (.html)
+        </button>
+        <button class="btn btn-secondary" style="font-size:1.05rem;padding:16px 28px" onclick="openLiveDemoModal()">
+          ⚡ Try Live in Browser Right Now
+        </button>
+      </div>
+
+      <!-- Quick Branding Settings (Optional) -->
+      <details style="max-width:640px;margin:0 auto;text-align:left;background:var(--surface3);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border-light)">
+        <summary style="cursor:pointer;font-family:var(--font-head);font-weight:600;font-size:0.9rem">
+          🎨 Optional: Customize Website Name &amp; Color
+        </summary>
+        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div>
+            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">App Title</label>
+            <input class="table-input" id="cfgAppTitle" value="Document Generator">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Company / Brand</label>
+            <input class="table-input" id="cfgCompanyName" value="EffiSol Energy Solutions">
+          </div>
+        </div>
+        <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
+          <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted)">Accent Color:</label>
+          <input type="color" id="cfgAccentColor" value="#FF9A2E" style="height:34px;cursor:pointer;border:none;background:none">
+          <div style="display:flex;gap:6px">
+            <span style="width:24px;height:24px;border-radius:50%;background:#FF9A2E;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#FF9A2E'"></span>
+            <span style="width:24px;height:24px;border-radius:50%;background:#3B82F6;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#3B82F6'"></span>
+            <span style="width:24px;height:24px;border-radius:50%;background:#10B981;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#10B981'"></span>
+            <span style="width:24px;height:24px;border-radius:50%;background:#8B5CF6;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#8B5CF6'"></span>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+</div><!-- end app-wrapper -->
+
+<!-- LIVE PREVIEW MODAL -->
+<div class="preview-modal" id="modalLiveDemo">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">⚡</span>
+        <span style="font-family:var(--font-head);font-weight:700" id="modalLiveDemoTitle">Live Generator App</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeLiveDemoModal()">✕ Close Preview</button>
+    </div>
+    <iframe class="modal-frame" id="liveDemoIframe"></iframe>
+  </div>
+</div>
