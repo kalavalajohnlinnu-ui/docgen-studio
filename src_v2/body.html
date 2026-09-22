@@ -6,26 +6,26 @@
       <div class="brand-icon">⚡</div>
       <div>
         <div class="brand-title">Doc<span>Gen</span> Studio</div>
-        <div class="brand-tagline">Turn Any Document into a Working Web App</div>
+        <div class="brand-tagline">Universal Quotation &amp; Document Website Builder</div>
       </div>
     </div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-      <button class="top-demo-btn" onclick="loadDemoProposal()">
-        ☀️ Solar Demo (PDF)
+      <button class="btn btn-ghost btn-sm" onclick="switchInputMode('upload')">
+        📁 Upload File
       </button>
-      <button class="top-demo-btn" onclick="loadDemoConstruction()">
-        🏗️ Construction Demo
+      <button class="btn btn-ghost btn-sm" onclick="switchInputMode('editor')">
+        ✍️ Paste / Write HTML
       </button>
-      <button class="top-demo-btn" onclick="loadDemoInvoice()">
-        🧾 Tax Invoice Demo
+      <button class="btn btn-secondary btn-sm" onclick="loadBlankStarter()">
+        ＋ Blank Starter
       </button>
     </div>
   </header>
 
   <!-- HERO EXPLANATION -->
   <div class="hero-box">
-    <h1 class="hero-title">Create your document generator website in <span>3 simple steps</span></h1>
-    <p class="hero-subtitle">Upload your tagged PDF, Word doc, or HTML quotation. We automatically create a clean, easy-to-use web form that fills and downloads your documents on the first try.</p>
+    <h1 class="hero-title">Build your custom quotation website in <span>3 simple steps</span></h1>
+    <p class="hero-subtitle">Upload any tagged document or write your HTML template. Set any company name, choose your background &amp; theme, and generate a 100% standalone website for any client or industry.</p>
   </div>
 
   <!-- 3-STEP PROGRESS NAVIGATION -->
@@ -33,85 +33,106 @@
     <div class="flow-step-btn active" id="stepPill1" onclick="goToStep(1)">
       <div class="step-num">1</div>
       <div>
-        <div class="step-text-title">Upload Template</div>
+        <div class="step-text-title">Document Template</div>
         <div class="step-text-sub">PDF, Word, or HTML</div>
       </div>
     </div>
     <div class="flow-step-btn" id="stepPill2" onclick="goToStep(2)">
       <div class="step-num">2</div>
       <div>
-        <div class="step-text-title">Review Variables</div>
-        <div class="step-text-sub" id="varsCountSub">Auto-detected fields</div>
+        <div class="step-text-title">Variables &amp; Rules</div>
+        <div class="step-text-sub" id="varsCountSub">Define fields &amp; formulas</div>
       </div>
     </div>
     <div class="flow-step-btn" id="stepPill3" onclick="goToStep(3)">
       <div class="step-num">3</div>
       <div>
-        <div class="step-text-title">Get Your Web App</div>
-        <div class="step-text-sub">Download &amp; Test</div>
+        <div class="step-text-title">Company &amp; Theme</div>
+        <div class="step-text-sub">Customize &amp; Generate</div>
       </div>
     </div>
   </div>
 
   <!-- ==============================================
-       STEP 1: UPLOAD TEMPLATE
+       STEP 1: TEMPLATE INPUT
   ============================================== -->
   <div class="main-card highlight-card" id="sectionStep1">
     <div class="card-header-bar">
       <div>
         <div class="card-title-text">
-          <span>📄</span> Step 1 — Upload Your Document Template
+          <span>📄</span> Step 1 — Provide Your Document Template
         </div>
-        <div class="card-desc-text">Upload any quotation, proposal, or agreement tagged with &lt;Placeholders&gt;</div>
+        <div class="card-desc-text">Upload any file with &lt;Variable_Name&gt; tags, or paste your HTML template directly.</div>
       </div>
     </div>
 
-    <!-- Dropzone -->
-    <div class="clean-dropzone" id="uploadDropzone">
-      <input type="file" id="filePicker" accept=".pdf,.docx,.html,.htm">
-      <span class="drop-icon">☁️</span>
-      <div class="drop-main-text">Drag &amp; Drop your Document here</div>
-      <div class="drop-sub-text">or click anywhere to browse files from your computer</div>
-      <div>
-        <span class="format-pill">📕 PDF (.pdf)</span>
-        <span class="format-pill">📝 Word (.docx)</span>
-        <span class="format-pill">🌐 HTML (.html, .htm)</span>
+    <!-- Mode Tabs -->
+    <div class="input-mode-tabs">
+      <button class="input-tab-btn active" id="tabModeUpload" onclick="switchInputMode('upload')">
+        📁 Upload File (PDF / Word / HTML)
+      </button>
+      <button class="input-tab-btn" id="tabModeEditor" onclick="switchInputMode('editor')">
+        ✍️ Paste / Write HTML Template
+      </button>
+    </div>
+
+    <!-- Upload Box Mode -->
+    <div id="paneModeUpload">
+      <div class="clean-dropzone" id="uploadDropzone">
+        <input type="file" id="filePicker" accept=".pdf,.docx,.html,.htm">
+        <span class="drop-icon">☁️</span>
+        <div class="drop-main-text">Drag &amp; Drop your Document here</div>
+        <div class="drop-sub-text">or click anywhere to browse files from your computer</div>
+        <div>
+          <span class="format-pill">📕 PDF (.pdf)</span>
+          <span class="format-pill">📝 Word (.docx)</span>
+          <span class="format-pill">🌐 HTML (.html, .htm)</span>
+        </div>
+      </div>
+
+      <!-- Loaded File Bar -->
+      <div id="fileLoadedCard" style="display:none"></div>
+
+      <!-- Document Visual Previewer (for PDF) -->
+      <div id="pdfViewerArea" class="doc-preview-box" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-family:var(--font-head);font-weight:600;font-size:0.95rem">
+            📄 Document Page Preview
+          </div>
+          <span style="font-size:0.75rem;color:var(--text-muted)">Tags found on each page are highlighted</span>
+        </div>
+        <div class="preview-pages-nav" id="pagesNavStrip"></div>
+        <div class="canvas-wrap">
+          <div class="canvas-holder" id="canvasHolder">
+            <canvas id="pdfCanvas"></canvas>
+            <div id="canvasMarkersLayer"></div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Loaded File Bar -->
-    <div id="fileLoadedCard" style="display:none"></div>
-
-    <!-- Document Visual Previewer (for PDF) -->
-    <div id="pdfViewerArea" class="doc-preview-box" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-family:var(--font-head);font-weight:600;font-size:0.95rem">
-          📄 Document Page Preview
+    <!-- HTML Editor Mode -->
+    <div id="paneModeEditor" style="display:none">
+      <div class="template-editor-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <label style="font-size:0.85rem;font-weight:600;color:var(--text)">
+            Paste or Write your HTML Template with &lt;Tags&gt;:
+          </label>
+          <button class="btn btn-ghost btn-sm" onclick="loadBlankStarter()">
+            Load Starter Sample
+          </button>
         </div>
-        <span style="font-size:0.75rem;color:var(--text-muted)">Tags found on each page are highlighted</span>
-      </div>
-      <div class="preview-pages-nav" id="pagesNavStrip"></div>
-      <div class="canvas-wrap">
-        <div class="canvas-holder" id="canvasHolder">
-          <canvas id="pdfCanvas"></canvas>
-          <div id="canvasMarkersLayer"></div>
-        </div>
+        <textarea class="template-textarea" id="htmlTemplateCode" placeholder="Paste HTML here... example:&#10;&lt;h1&gt;&lt;Company_Name&gt;&lt;/h1&gt;&#10;&lt;p&gt;Quotation for: &lt;Client_Name&gt;&lt;/p&gt;&#10;&lt;p&gt;Amount: Rs. &lt;Total_Amount&gt;&lt;/p&gt;"></textarea>
       </div>
     </div>
 
     <!-- Action row -->
     <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-      <button class="btn btn-primary" id="btnStartScan" style="display:none" onclick="runTagScan()">
-        🔍 Scan Variables in File
+      <button class="btn btn-primary" id="btnStartScan" onclick="runTagScan()">
+        🔍 Scan Variables in Template
       </button>
-      <button class="btn btn-secondary" onclick="loadDemoProposal()">
-        ☀️ 1-Click Solar Proposal (7-Page PDF)
-      </button>
-      <button class="btn btn-ghost" onclick="loadDemoConstruction()">
-        🏗️ 1-Click Construction Quote (HTML)
-      </button>
-      <button class="btn btn-ghost" onclick="loadDemoInvoice()">
-        🧾 1-Click Tax Invoice (HTML)
+      <button class="btn btn-secondary" onclick="goToStep(2)">
+        Skip to Step 2 (Configure Variables Manually) →
       </button>
     </div>
 
@@ -127,10 +148,10 @@
         <div class="card-title-text">
           <span>⚙️</span> Step 2 — Review Your Variables &amp; Formulas
         </div>
-        <div class="card-desc-text">Every &lt;Tag&gt; in your file becomes an input field on your new web form.</div>
+        <div class="card-desc-text">Every &lt;Tag&gt; becomes a dynamic input field on your generated website.</div>
       </div>
       <button class="btn btn-secondary btn-sm" onclick="addCustomVariable()">
-        ＋ Add Field
+        ＋ Add Variable
       </button>
     </div>
 
@@ -153,84 +174,194 @@
     <!-- Quick Formula Helpers -->
     <div style="margin-top:18px;padding:16px;background:var(--surface2);border-radius:var(--radius-sm);border:1px solid var(--border)">
       <div style="font-family:var(--font-head);font-size:0.85rem;font-weight:600;margin-bottom:8px">
-        🧮 Popular Auto-Calculations (Click to apply):
+        🧮 Quick Formulas (Click to apply):
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Net_Cost_INR = Project_Cost_INR - Subsidy_INR')">
-          Net Cost = Cost - Subsidy
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Subtotal = Quantity * Rate')">
+          Subtotal = Quantity * Rate
         </button>
-        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Annual_Energy_Units = Capacity_kW * 4.2 * 365')">
-          Annual Energy = Capacity * 4.2 * 365
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('GST_18 = Subtotal * 0.18')">
+          GST 18% = Subtotal * 0.18
         </button>
-        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Monthly_Savings_INR = round(Monthly_Energy_Units * 8)')">
-          Monthly Savings = Units * Tariff
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Total_Amount = Subtotal + GST_18 - Discount')">
+          Total = Subtotal + GST - Discount
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="applyQuickFormula('Net_Payable = Total_Amount - Advance_Paid')">
+          Net Payable = Total - Advance
         </button>
       </div>
     </div>
 
     <div style="margin-top:24px;text-align:right">
       <button class="btn btn-primary" onclick="goToStep(3)">
-        Continue to Step 3: Get Your Web App →
+        Continue to Step 3: Company &amp; Theme Options →
       </button>
     </div>
   </div>
 
   <!-- ==============================================
-       STEP 3: DOWNLOAD & TEST YOUR WEB APP
+       STEP 3: COMPANY, THEME, LAYOUT & DOWNLOAD
   ============================================== -->
   <div class="main-card" id="sectionStep3" style="display:none">
     <div class="card-header-bar">
       <div>
         <div class="card-title-text">
-          <span>🚀</span> Step 3 — Get Your Standalone Web App
+          <span>🎨</span> Step 3 — Company Profile &amp; Website Options
         </div>
-        <div class="card-desc-text">Your document generator website is compiled and ready to use!</div>
+        <div class="card-desc-text">Customize your website for any company, background style, and layout.</div>
       </div>
     </div>
 
-    <div class="final-action-card">
-      <div style="font-size:50px;margin-bottom:12px">⚡</div>
-      <div class="final-action-title">Your Generator Web App is Ready!</div>
-      <div class="final-action-desc">
-        Click below to download your complete web app as a single <code>.html</code> file.<br>
-        Open it anytime on your computer, send it to your team, or host it on your website. No server or login needed!
-      </div>
+    <div style="display:flex;flex-direction:column;gap:24px">
 
-      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:28px">
-        <button class="btn btn-primary" style="font-size:1.05rem;padding:16px 36px" onclick="downloadCompiledApp()">
-          🚀 Download My Generator App (.html)
-        </button>
-        <button class="btn btn-secondary" style="font-size:1.05rem;padding:16px 28px" onclick="openLiveDemoModal()">
-          ⚡ Try Live in Browser Right Now
-        </button>
-      </div>
-
-      <!-- Quick Branding Settings (Optional) -->
-      <details style="max-width:640px;margin:0 auto;text-align:left;background:var(--surface3);padding:16px;border-radius:var(--radius-sm);border:1px solid var(--border-light)">
-        <summary style="cursor:pointer;font-family:var(--font-head);font-weight:600;font-size:0.9rem">
-          🎨 Optional: Customize Website Name &amp; Color
-        </summary>
-        <div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <!-- SECTION A: COMPANY DETAILS -->
+      <div style="background:var(--surface2);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-family:var(--font-head);font-weight:700;font-size:0.95rem;margin-bottom:14px;color:var(--text)">
+          🏢 1. Company &amp; Document Identity
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:14px">
           <div>
-            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">App Title</label>
-            <input class="table-input" id="cfgAppTitle" value="Document Generator">
+            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Company / Brand Name</label>
+            <input class="table-input" id="cfgCompanyName" placeholder="e.g. Apex Corporation, Horizon Living..." value="Apex Enterprises">
           </div>
           <div>
-            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Company / Brand</label>
-            <input class="table-input" id="cfgCompanyName" value="EffiSol Energy Solutions">
+            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Website Title</label>
+            <input class="table-input" id="cfgAppTitle" placeholder="e.g. Commercial Quotation Portal" value="Quotation &amp; Proposal Portal">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Document Type / Subtitle</label>
+            <input class="table-input" id="cfgDocSubtitle" placeholder="e.g. Official Proposal, Tax Invoice..." value="Official Quotation &amp; Estimate">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted);display:block;margin-bottom:4px">Brand Icon / Logo</label>
+            <div style="display:flex;gap:6px">
+              <input class="table-input" id="cfgLogoIcon" value="⚡" style="width:60px;text-align:center;font-size:18px">
+              <div style="display:flex;gap:4px;align-items:center">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('cfgLogoIcon').value='⚡'">⚡</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('cfgLogoIcon').value='🏢'">🏢</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('cfgLogoIcon').value='📄'">📄</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('cfgLogoIcon').value='🏗️'">🏗️</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="document.getElementById('cfgLogoIcon').value='💼'">💼</button>
+              </div>
+            </div>
           </div>
         </div>
-        <div style="margin-top:14px;display:flex;align-items:center;gap:12px">
-          <label style="font-size:0.78rem;font-weight:600;color:var(--text-muted)">Accent Color:</label>
-          <input type="color" id="cfgAccentColor" value="#FF9A2E" style="height:34px;cursor:pointer;border:none;background:none">
-          <div style="display:flex;gap:6px">
-            <span style="width:24px;height:24px;border-radius:50%;background:#FF9A2E;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#FF9A2E'"></span>
-            <span style="width:24px;height:24px;border-radius:50%;background:#3B82F6;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#3B82F6'"></span>
-            <span style="width:24px;height:24px;border-radius:50%;background:#10B981;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#10B981'"></span>
-            <span style="width:24px;height:24px;border-radius:50%;background:#8B5CF6;cursor:pointer;display:inline-block" onclick="document.getElementById('cfgAccentColor').value='#8B5CF6'"></span>
+      </div>
+
+      <!-- SECTION B: BACKGROUND & THEMES -->
+      <div style="background:var(--surface2);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-family:var(--font-head);font-weight:700;font-size:0.95rem;margin-bottom:4px;color:var(--text)">
+          🌌 2. Background Style &amp; Visual Theme
+        </div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">Choose the visual background for your generated website:</div>
+        
+        <input type="hidden" id="cfgTheme" value="dark-obsidian">
+        <div class="options-grid">
+          <div class="option-card selected" id="themeCard_dark-obsidian" onclick="selectTheme('dark-obsidian')">
+            <div class="option-card-title">🌑 Dark Obsidian</div>
+            <div class="option-card-desc">Deep black-slate with glass cards. Sleek &amp; modern.</div>
+            <div class="theme-preview-pill">
+              <div class="theme-pill-bg" style="background:#090C15"></div>
+              <div class="theme-pill-surf" style="background:#141E33"></div>
+              <div class="theme-pill-acc" style="background:#FF9A2E"></div>
+            </div>
+          </div>
+
+          <div class="option-card" id="themeCard_corporate-light" onclick="selectTheme('corporate-light')">
+            <div class="option-card-title">🏢 Corporate Light</div>
+            <div class="option-card-desc">Crisp white &amp; cool gray. Professional B2B look.</div>
+            <div class="theme-preview-pill">
+              <div class="theme-pill-bg" style="background:#F8FAFC"></div>
+              <div class="theme-pill-surf" style="background:#FFFFFF"></div>
+              <div class="theme-pill-acc" style="background:#2563EB"></div>
+            </div>
+          </div>
+
+          <div class="option-card" id="themeCard_midnight-blue" onclick="selectTheme('midnight-blue')">
+            <div class="option-card-title">🌊 Midnight Blue</div>
+            <div class="option-card-desc">Deep navy gradient with glowing blue surfaces.</div>
+            <div class="theme-preview-pill">
+              <div class="theme-pill-bg" style="background:#0B1329"></div>
+              <div class="theme-pill-surf" style="background:#162447"></div>
+              <div class="theme-pill-acc" style="background:#38BDF8"></div>
+            </div>
+          </div>
+
+          <div class="option-card" id="themeCard_warm-paper" onclick="selectTheme('warm-paper')">
+            <div class="option-card-title">📜 Warm Paper</div>
+            <div class="option-card-desc">Subtle ivory &amp; warm cream. Elegant document feel.</div>
+            <div class="theme-preview-pill">
+              <div class="theme-pill-bg" style="background:#FDFBF7"></div>
+              <div class="theme-pill-surf" style="background:#FFFFFF"></div>
+              <div class="theme-pill-acc" style="background:#D97706"></div>
+            </div>
+          </div>
+
+          <div class="option-card" id="themeCard_cyber-purple" onclick="selectTheme('cyber-purple')">
+            <div class="option-card-title">🟣 Modern Cyber</div>
+            <div class="option-card-desc">Rich indigo-violet gradient for tech companies.</div>
+            <div class="theme-preview-pill">
+              <div class="theme-pill-bg" style="background:#0F0C20"></div>
+              <div class="theme-pill-surf" style="background:#1C163B"></div>
+              <div class="theme-pill-acc" style="background:#A855F7"></div>
+            </div>
           </div>
         </div>
-      </details>
+
+        <!-- Accent Color Picker -->
+        <div style="margin-top:16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <label style="font-size:0.8rem;font-weight:600;color:var(--text)">Accent Brand Color:</label>
+          <input type="color" id="cfgAccentColor" value="#FF9A2E" style="height:36px;width:50px;cursor:pointer;border:none;background:none">
+          <div style="display:flex;gap:8px;align-items:center">
+            <span title="Amber" style="width:24px;height:24px;border-radius:50%;background:#FF9A2E;cursor:pointer;display:inline-block" onclick="setAccentColor('#FF9A2E')"></span>
+            <span title="Blue" style="width:24px;height:24px;border-radius:50%;background:#2563EB;cursor:pointer;display:inline-block" onclick="setAccentColor('#2563EB')"></span>
+            <span title="Emerald" style="width:24px;height:24px;border-radius:50%;background:#10B981;cursor:pointer;display:inline-block" onclick="setAccentColor('#10B981')"></span>
+            <span title="Violet" style="width:24px;height:24px;border-radius:50%;background:#8B5CF6;cursor:pointer;display:inline-block" onclick="setAccentColor('#8B5CF6')"></span>
+            <span title="Crimson" style="width:24px;height:24px;border-radius:50%;background:#EF4444;cursor:pointer;display:inline-block" onclick="setAccentColor('#EF4444')"></span>
+            <span title="Cyan" style="width:24px;height:24px;border-radius:50%;background:#06B6D4;cursor:pointer;display:inline-block" onclick="setAccentColor('#06B6D4')"></span>
+            <span title="Slate" style="width:24px;height:24px;border-radius:50%;background:#475569;cursor:pointer;display:inline-block" onclick="setAccentColor('#475569')"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION C: WEBSITE LAYOUT TYPE -->
+      <div style="background:var(--surface2);padding:20px;border-radius:var(--radius-sm);border:1px solid var(--border)">
+        <div style="font-family:var(--font-head);font-weight:700;font-size:0.95rem;margin-bottom:4px;color:var(--text)">
+          📐 3. Website Layout Experience
+        </div>
+        <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:12px">Choose how your client or team interacts with the generated website:</div>
+
+        <input type="hidden" id="cfgLayout" value="split">
+        <div class="options-grid" style="grid-template-columns:1fr 1fr">
+          <div class="option-card selected" id="layoutCard_split" onclick="selectLayout('split')">
+            <div class="option-card-title">⚡ Interactive Split-Screen (Recommended)</div>
+            <div class="option-card-desc">Form on left, live quotation document on right updating in real time with Print/Save PDF button.</div>
+          </div>
+          <div class="option-card" id="layoutCard_form" onclick="selectLayout('form')">
+            <div class="option-card-title">📋 Classic Focused Form</div>
+            <div class="option-card-desc">Focused data entry form with large download &amp; export actions.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FINAL GENERATE BUTTONS -->
+      <div class="final-action-card" style="margin-top:10px">
+        <div style="font-size:48px;margin-bottom:10px">🚀</div>
+        <div class="final-action-title">Ready to Generate Your Website!</div>
+        <div class="final-action-desc">
+          Your custom website will be compiled into a single, standalone <code>.html</code> file with all styles, formulas, and documents embedded.
+        </div>
+
+        <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" style="font-size:1.05rem;padding:16px 36px" onclick="downloadCompiledApp()">
+            🚀 Download Standalone Website (.html)
+          </button>
+          <button class="btn btn-secondary" style="font-size:1.05rem;padding:16px 28px" onclick="openLiveDemoModal()">
+            ⚡ Test &amp; Preview Live Website
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -241,8 +372,8 @@
   <div class="modal-box">
     <div class="modal-head">
       <div style="display:flex;align-items:center;gap:10px">
-        <span style="font-size:20px">⚡</span>
-        <span style="font-family:var(--font-head);font-weight:700" id="modalLiveDemoTitle">Live Generator App</span>
+        <span style="font-size:20px" id="modalLiveDemoIcon">⚡</span>
+        <span style="font-family:var(--font-head);font-weight:700" id="modalLiveDemoTitle">Live Website Preview</span>
       </div>
       <button class="btn btn-ghost btn-sm" onclick="closeLiveDemoModal()">✕ Close Preview</button>
     </div>

@@ -1,11 +1,12 @@
 
 /* ==========================================================
-   DOCGEN STUDIO — SIMPLE & CLEAR ENGINE
+   DOCGEN STUDIO — UNIVERSAL DOCUMENT WEBSITE BUILDER
+   100% Independent & Generic for ANY Company & ANY Industry
 ========================================================== */
 const state = {
   file: null,
   fileName: '',
-  fileType: 'pdf',
+  fileType: 'html',
   fileBase64: '',
   pdfDoc: null,
   currentPage: 1,
@@ -16,12 +17,13 @@ const state = {
 
 const FIELD_TYPES = [
   { val: 'text', label: '📝 Text' },
-  { val: 'inr', label: '💰 Currency (₹ INR)' },
+  { val: 'inr', label: '💰 Currency (₹ / $)' },
   { val: 'number', label: '🔢 Number' },
   { val: 'date', label: '📅 Date' },
   { val: 'calculated', label: '🧮 Auto Calculated' }
 ];
 
+/* NAVIGATION */
 function goToStep(stepNum) {
   for (let i = 1; i <= 3; i++) {
     const pill = document.getElementById('stepPill' + i);
@@ -35,7 +37,9 @@ function goToStep(stepNum) {
       if (i === stepNum) {
         sec.style.display = 'block';
         sec.classList.add('highlight-card');
-        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (typeof sec.scrollIntoView === 'function') {
+          sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       } else {
         sec.classList.remove('highlight-card');
       }
@@ -51,7 +55,137 @@ function showAlert(msg, type = 'info') {
   box.innerHTML = msg;
 }
 
-/* FILE UPLOAD */
+/* INPUT MODE TABS: UPLOAD vs EDITOR */
+function switchInputMode(mode) {
+  const tabUpload = document.getElementById('tabModeUpload');
+  const tabEditor = document.getElementById('tabModeEditor');
+  const paneUpload = document.getElementById('paneModeUpload');
+  const paneEditor = document.getElementById('paneModeEditor');
+
+  if (mode === 'upload') {
+    if (tabUpload) tabUpload.className = 'input-tab-btn active';
+    if (tabEditor) tabEditor.className = 'input-tab-btn';
+    if (paneUpload) paneUpload.style.display = 'block';
+    if (paneEditor) paneEditor.style.display = 'none';
+  } else {
+    if (tabUpload) tabUpload.className = 'input-tab-btn';
+    if (tabEditor) tabEditor.className = 'input-tab-btn active';
+    if (paneUpload) paneUpload.style.display = 'none';
+    if (paneEditor) paneEditor.style.display = 'block';
+    const codeArea = document.getElementById('htmlTemplateCode');
+    if (codeArea && !codeArea.value.trim()) {
+      loadBlankStarter();
+    }
+  }
+}
+
+/* BLANK STARTER TEMPLATE (GENERIC FOR ANY COMPANY) */
+function loadBlankStarter() {
+  const starterHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title><Document_Title> - <Client_Name></title>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; margin: 30px; color: #1e293b; line-height: 1.5; }
+    .doc-card { max-width: 800px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 36px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+    .doc-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #3b82f6; padding-bottom: 18px; margin-bottom: 24px; }
+    .doc-title { font-size: 24px; font-weight: 800; color: #1e3a8a; }
+    .doc-sub { font-size: 13px; color: #64748b; margin-top: 4px; }
+    .doc-meta { text-align: right; font-size: 13px; }
+    .client-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px 18px; margin-bottom: 24px; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14px; }
+    th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    th { background: #f1f5f9; font-weight: 600; color: #334155; }
+    .total-row { font-weight: bold; font-size: 16px; background: #eff6ff; color: #1d4ed8; }
+    .doc-footer { margin-top: 30px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; }
+    @media print { body { margin: 0; } .doc-card { border: none; box-shadow: none; padding: 20px; } }
+  </style>
+</head>
+<body>
+<div class="doc-card">
+  <div class="doc-header">
+    <div>
+      <div class="doc-title"><Company_Name></div>
+      <div class="doc-sub"><Document_Title></div>
+    </div>
+    <div class="doc-meta">
+      <div><strong>Date:</strong> <Quote_Date></div>
+      <div style="color:#64748b;margin-top:4px"><strong>Ref:</strong> #<Reference_Number></div>
+    </div>
+  </div>
+
+  <div class="client-box">
+    <div><strong>Prepared for:</strong> <Client_Name></div>
+    <div style="margin-top:4px;color:#475569"><strong>Contact / Site:</strong> <Client_Contact></div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Item / Service Description</th>
+        <th>Quantity</th>
+        <th>Rate (₹)</th>
+        <th>Amount (₹)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><Item_Description></td>
+        <td><Quantity></td>
+        <td>₹ <Rate></td>
+        <td>₹ <Subtotal></td>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align:right"><strong>Subtotal:</strong></td>
+        <td>₹ <Subtotal></td>
+      </tr>
+      <tr>
+        <td colspan="3" style="text-align:right"><strong>GST / Tax (18%):</strong></td>
+        <td>₹ <GST_Amount></td>
+      </tr>
+      <tr class="total-row">
+        <td colspan="3" style="text-align:right"><strong>Total Amount Due:</strong></td>
+        <td>₹ <Total_Amount></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="doc-footer">
+    * This document is generated automatically. Validity: 30 days from date of issue.
+  </div>
+</div>
+</body>
+</html>`;
+
+  const codeArea = document.getElementById('htmlTemplateCode');
+  if (codeArea) codeArea.value = starterHtml;
+
+  state.fileBase64 = btoa(unescape(encodeURIComponent(starterHtml)));
+  state.fileName = 'Custom_Quotation_Template.html';
+  state.fileType = 'html';
+
+  state.vars = [
+    { tag: 'Company_Name', label: 'Company / Business Name', type: 'text', def: 'Apex Enterprises', formula: '', occurrences: [] },
+    { tag: 'Document_Title', label: 'Document Title', type: 'text', def: 'Commercial Quotation', formula: '', occurrences: [] },
+    { tag: 'Quote_Date', label: 'Quotation Date', type: 'date', def: new Date().toISOString().slice(0, 10), formula: '', occurrences: [] },
+    { tag: 'Reference_Number', label: 'Quote / Reference #', type: 'text', def: 'QUO-2026-001', formula: '', occurrences: [] },
+    { tag: 'Client_Name', label: 'Client / Customer Name', type: 'text', def: 'Acme Global Pvt Ltd', formula: '', occurrences: [] },
+    { tag: 'Client_Contact', label: 'Client Contact / Address', type: 'text', def: 'support@acmeglobal.com', formula: '', occurrences: [] },
+    { tag: 'Item_Description', label: 'Item / Service Description', type: 'text', def: 'Enterprise Supply & Installation Package', formula: '', occurrences: [] },
+    { tag: 'Quantity', label: 'Quantity / Units', type: 'number', def: '10', formula: '', occurrences: [] },
+    { tag: 'Rate', label: 'Rate per Unit (₹)', type: 'inr', def: '25000', formula: '', occurrences: [] },
+    { tag: 'Subtotal', label: 'Subtotal (₹)', type: 'calculated', def: '250000', formula: 'Quantity * Rate', occurrences: [] },
+    { tag: 'GST_Amount', label: 'GST Amount 18% (₹)', type: 'calculated', def: '45000', formula: 'Subtotal * 0.18', occurrences: [] },
+    { tag: 'Total_Amount', label: 'Grand Total (₹)', type: 'calculated', def: '295000', formula: 'Subtotal + GST_Amount', occurrences: [] }
+  ];
+
+  showAlert('✅ Loaded generic starter template with 12 variables & formulas!', 'success');
+  renderVariablesCleanTable();
+  goToStep(2);
+}
+
+/* FILE UPLOAD LISTENERS */
 const dropzone = document.getElementById('uploadDropzone');
 const filePicker = document.getElementById('filePicker');
 
@@ -120,17 +254,43 @@ function clearSelectedFile() {
   state.fileBase64 = '';
   state.pdfDoc = null;
   state.vars = [];
-  document.getElementById('fileLoadedCard').style.display = 'none';
-  document.getElementById('btnStartScan').style.display = 'none';
-  document.getElementById('pdfViewerArea').style.display = 'none';
-  document.getElementById('sectionStep2').style.display = 'none';
-  document.getElementById('sectionStep3').style.display = 'none';
-  document.getElementById('statusAlertBox').style.display = 'none';
+  const card = document.getElementById('fileLoadedCard');
+  if (card) card.style.display = 'none';
+  const pvArea = document.getElementById('pdfViewerArea');
+  if (pvArea) pvArea.style.display = 'none';
+  const sec2 = document.getElementById('sectionStep2');
+  if (sec2) sec2.style.display = 'none';
+  const sec3 = document.getElementById('sectionStep3');
+  if (sec3) sec3.style.display = 'none';
+  const ab = document.getElementById('statusAlertBox');
+  if (ab) ab.style.display = 'none';
   if (filePicker) filePicker.value = '';
 }
 
-/* SCANNING & DEMO LOADERS */
+/* SCANNING LOGIC */
 async function runTagScan() {
+  const paneEditor = document.getElementById('paneModeEditor');
+  const isEditorMode = paneEditor && paneEditor.style.display !== 'none';
+
+  if (isEditorMode) {
+    const codeArea = document.getElementById('htmlTemplateCode');
+    const text = codeArea ? codeArea.value : '';
+    if (!text.trim()) {
+      showAlert('⚠️ Please enter or paste HTML code in the box first.', 'warning');
+      return;
+    }
+    state.fileType = 'html';
+    state.fileName = 'Custom_Template.html';
+    state.fileBase64 = btoa(unescape(encodeURIComponent(text)));
+    extractTagsFromText(text);
+    return;
+  }
+
+  if (!state.fileBase64) {
+    showAlert('⚠️ Please select a file to upload first.', 'warning');
+    return;
+  }
+
   showAlert('🔍 Scanning document for placeholders...', 'info');
 
   try {
@@ -274,11 +434,12 @@ function extractTagsFromText(text) {
 
 function onScanDone() {
   if (state.vars.length === 0) {
-    showAlert('⚠️ No &lt;Tags&gt; found in document. Make sure placeholders look like &lt;Customer_Name&gt;.', 'warning');
-    return;
+    showAlert('⚠️ No &lt;Tags&gt; found in document. You can add variables manually below.', 'warning');
+    addCustomVariable();
+  } else {
+    showAlert(`✅ Found <strong>${state.vars.length} variables</strong> in your document!`, 'success');
   }
 
-  showAlert(`✅ Found <strong>${state.vars.length} variables</strong> in your document!`, 'success');
   const countSub = document.getElementById('varsCountSub');
   if (countSub) countSub.textContent = `${state.vars.length} fields found`;
 
@@ -327,15 +488,14 @@ async function renderPdfPage(pageNum) {
   const tags = state.pageTags[pageNum - 1] || [];
   tags.forEach(t => {
     const box = document.createElement('div');
-    box.className = 'tag-badge-marker';
-
-    const left = t.x * scale;
-    const top = (viewport.height / scale - t.y - t.h) * scale;
+    box.className = 'tag-box';
+    const x = t.x * scale;
+    const y = (viewport.height / scale - t.y - t.h) * scale;
     const w = t.w * scale;
     const h = t.h * scale;
 
-    box.style.left = left + 'px';
-    box.style.top = top + 'px';
+    box.style.left = x + 'px';
+    box.style.top = y + 'px';
     box.style.width = w + 'px';
     box.style.height = h + 'px';
 
@@ -343,216 +503,6 @@ async function renderPdfPage(pageNum) {
     box.title = `Field: <${t.tagName}>`;
     layer.appendChild(box);
   });
-}
-
-function loadDemoProposal() {
-  if (!window.SAMPLE_PDF_B64) {
-    showAlert('Sample data not found. Please upload a file.', 'warning');
-    return;
-  }
-
-  state.fileBase64 = window.SAMPLE_PDF_B64;
-  state.fileName = 'EffiSol_Solar_Proposal_7Pages.pdf';
-  state.fileType = 'pdf';
-
-  const card = document.getElementById('fileLoadedCard');
-  if (card) {
-    card.style.display = 'flex';
-    card.className = 'loaded-pill';
-    card.innerHTML = `
-      <div class="loaded-pill-info">
-        <span class="loaded-pill-icon">📕</span>
-        <div>
-          <div class="loaded-pill-title">EffiSol_Solar_Proposal_7Pages.pdf (7-Page Sample)</div>
-          <div class="loaded-pill-meta">15 Variables · Official Solar Proposal Template</div>
-        </div>
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="clearSelectedFile()">✕ Change</button>
-    `;
-  }
-
-  const btnScan = document.getElementById('btnStartScan');
-  if (btnScan) btnScan.style.display = 'none';
-
-  state.vars = [
-    { tag: 'Customer_Name', label: 'Customer Full Name', type: 'text', def: 'Mr. Rama Krishna', formula: '', occurrences: [{ page: 0, x: 242, y: 333, w: 200, h: 22 }] },
-    { tag: 'Capacity_kW', label: 'System Capacity (kW)', type: 'number', def: '5.5', formula: '', occurrences: [{ page: 0, x: 120, y: 625, w: 60, h: 18 }, { page: 5, x: 78, y: 399, w: 80, h: 18 }] },
-    { tag: 'Panel_Wattage', label: 'Panel Wattage (Wp)', type: 'number', def: '615', formula: '', occurrences: [{ page: 0, x: 181, y: 610, w: 70, h: 16 }, { page: 4, x: 135, y: 489, w: 150, h: 16 }] },
-    { tag: 'Panel_Brand', label: 'Solar Panel Brand', type: 'text', def: 'Adani / Luminous', formula: '', occurrences: [{ page: 4, x: 110, y: 474, w: 180, h: 16 }] },
-    { tag: 'Inverter_Capacity_kVA', label: 'Inverter Capacity (kW)', type: 'number', def: '5', formula: '', occurrences: [{ page: 4, x: 69, y: 422, w: 200, h: 16 }] },
-    { tag: 'Project_Cost_INR', label: 'Total Project Cost (₹)', type: 'inr', def: '325000', formula: '', occurrences: [{ page: 4, x: 315, y: 553, w: 260, h: 18 }] },
-    { tag: 'Subsidy_INR', label: 'Government Subsidy (₹)', type: 'inr', def: '78000', formula: '', occurrences: [{ page: 4, x: 315, y: 435, w: 260, h: 18 }] },
-    { tag: 'Net_Cost_INR', label: 'Net Cost to Customer (₹)', type: 'calculated', def: '247000', formula: 'Project_Cost_INR - Subsidy_INR', occurrences: [{ page: 4, x: 314, y: 403, w: 260, h: 18 }] },
-    { tag: 'Annual_Energy_Units', label: 'Annual Units (kWh)', type: 'calculated', def: '8432', formula: 'Capacity_kW * 4.2 * 365', occurrences: [{ page: 4, x: 181, y: 284, w: 380, h: 18 }] },
-    { tag: 'Monthly_Savings_INR', label: 'Monthly Bill Savings (₹)', type: 'calculated', def: '5624', formula: 'round((Annual_Energy_Units / 12) * 8)', occurrences: [{ page: 4, x: 202, y: 218, w: 380, h: 18 }] }
-  ];
-
-  showAlert('✅ Loaded 7-Page Solar Proposal Sample with 10 configured variables!', 'success');
-
-  const countSub = document.getElementById('varsCountSub');
-  if (countSub) countSub.textContent = '10 fields ready';
-
-  renderVariablesCleanTable();
-
-  // Load canvas preview
-  const binaryString = atob(state.fileBase64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) bytes[i] = binaryString.charCodeAt(i);
-
-  pdfjsLib.getDocument({ data: bytes }).promise.then(doc => {
-    state.pdfDoc = doc;
-    state.totalPages = doc.numPages;
-    state.pageTags = {};
-    state.vars.forEach(v => {
-      (v.occurrences || []).forEach(o => {
-        if (!state.pageTags[o.page]) state.pageTags[o.page] = [];
-        state.pageTags[o.page].push({ tagName: v.tag, ...o });
-      });
-    });
-    renderPagesStrip();
-    renderPdfPage(1);
-  });
-
-  goToStep(2);
-}
-
-function loadDemoHtml() {
-  loadDemoConstruction();
-}
-
-function loadDemoConstruction() {
-  const sampleHtml = `<!DOCTYPE html>
-<html>
-<head><title>Construction Quotation - <Client_Name></title>
-<style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; color: #1e293b; background: #f8fafc; }
-  .card { max-width: 750px; margin: 0 auto; background: #fff; padding: 36px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
-  .header { display: flex; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 16px; margin-bottom: 24px; }
-  .title { font-size: 24px; font-weight: bold; color: #ea580c; }
-  .subtitle { font-size: 14px; color: #64748b; }
-  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
-  th { background: #f1f5f9; font-weight: 600; color: #334155; }
-  .total-row { font-weight: bold; font-size: 16px; background: #fff7ed; color: #c2410c; }
-  @media print { body { margin: 0; background: #fff; } .card { box-shadow: none; border: none; padding: 20px; } }
-</style>
-</head>
-<body>
-<div class="card">
-  <div class="header">
-    <div>
-      <div class="title">🏗️ Apex Infra & Builders</div>
-      <div class="subtitle">Commercial & Residential Construction Quotation</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-weight:600">Date: <Quote_Date></div>
-      <div style="color:#64748b;font-size:13px">Ref: APX-<Built_Up_Area_sqft></div>
-    </div>
-  </div>
-  <p><strong>Prepared for:</strong> <Client_Name></p>
-  <p><strong>Site Location:</strong> <Site_Address></p>
-  <table>
-    <thead><tr><th>Description</th><th>Rate / Sqft</th><th>Quantity</th><th>Amount (₹)</th></tr></thead>
-    <tbody>
-      <tr><td>Civil Construction & Finishing</td><td>₹ <Rate_Per_sqft></td><td><Built_Up_Area_sqft> sq.ft</td><td>₹ <Basic_Cost_INR></td></tr>
-      <tr><td>Architectural & MEP Services</td><td>Included</td><td>Lump sum</td><td>₹ 0</td></tr>
-      <tr><td colspan="3" style="text-align:right"><strong>Subtotal:</strong></td><td>₹ <Basic_Cost_INR></td></tr>
-      <tr><td colspan="3" style="text-align:right"><strong>GST (18%):</strong></td><td>₹ <GST_INR></td></tr>
-      <tr class="total-row"><td colspan="3" style="text-align:right"><strong>Grand Total Payable:</strong></td><td>₹ <Total_Cost_INR></td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:12px;color:#94a3b8;margin-top:20px;">* Validity: 30 days. Payment terms: 30% advance, balance milestone based.</p>
-</div>
-</body>
-</html>`;
-
-  state.fileBase64 = btoa(unescape(encodeURIComponent(sampleHtml)));
-  state.fileName = 'Construction_Quotation.html';
-  state.fileType = 'html';
-
-  state.vars = [
-    { tag: 'Client_Name', label: 'Client / Company Name', type: 'text', def: 'Mr. Ananya Verma', formula: '', occurrences: [] },
-    { tag: 'Site_Address', label: 'Project Site Location', type: 'text', def: 'Plot 42, Hitech City, Hyderabad', formula: '', occurrences: [] },
-    { tag: 'Quote_Date', label: 'Quotation Date', type: 'date', def: '2026-09-22', formula: '', occurrences: [] },
-    { tag: 'Built_Up_Area_sqft', label: 'Built-Up Area (sq.ft)', type: 'number', def: '2000', formula: '', occurrences: [] },
-    { tag: 'Rate_Per_sqft', label: 'Rate per sq.ft (₹)', type: 'number', def: '1850', formula: '', occurrences: [] },
-    { tag: 'Basic_Cost_INR', label: 'Subtotal Cost (₹)', type: 'calculated', def: '3700000', formula: 'Built_Up_Area_sqft * Rate_Per_sqft', occurrences: [] },
-    { tag: 'GST_INR', label: 'GST Amount 18% (₹)', type: 'calculated', def: '666000', formula: 'Basic_Cost_INR * 0.18', occurrences: [] },
-    { tag: 'Total_Cost_INR', label: 'Grand Total (₹)', type: 'calculated', def: '4366000', formula: 'Basic_Cost_INR + GST_INR', occurrences: [] }
-  ];
-
-  showAlert('✅ Loaded Construction Quotation Template (8 variables with live formulas)!', 'success');
-  renderVariablesCleanTable();
-  goToStep(2);
-}
-
-function loadDemoInvoice() {
-  const sampleHtml = `<!DOCTYPE html>
-<html>
-<head><title>Tax Invoice - <Client_Name></title>
-<style>
-  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; color: #0f172a; background: #f8fafc; }
-  .card { max-width: 750px; margin: 0 auto; background: #fff; padding: 36px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
-  .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
-  .title { font-size: 24px; font-weight: bold; color: #2563eb; }
-  .subtitle { font-size: 14px; color: #64748b; }
-  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
-  th { background: #eff6ff; font-weight: 600; color: #1e40af; }
-  .total-row { font-weight: bold; font-size: 16px; background: #dbeafe; color: #1e3a8a; }
-  @media print { body { margin: 0; background: #fff; } .card { box-shadow: none; border: none; padding: 20px; } }
-</style>
-</head>
-<body>
-<div class="card">
-  <div class="header">
-    <div>
-      <div class="title">🧾 TechCraft Solutions</div>
-      <div class="subtitle">Tax Invoice &amp; Commercial Billing</div>
-    </div>
-    <div style="text-align:right">
-      <div style="font-weight:600">Invoice: #INV-<Invoice_Number></div>
-      <div style="color:#64748b;font-size:13px">Date: <Invoice_Date></div>
-    </div>
-  </div>
-  <p><strong>Billed to:</strong> <Client_Name></p>
-  <p><strong>GSTIN:</strong> <Client_GSTIN></p>
-  <table>
-    <thead><tr><th>Item / Service</th><th>Qty / Units</th><th>Rate (₹)</th><th>Amount (₹)</th></tr></thead>
-    <tbody>
-      <tr><td><Service_Description></td><td>1</td><td>₹ <Base_Amount_INR></td><td>₹ <Base_Amount_INR></td></tr>
-      <tr><td colspan="3" style="text-align:right"><strong>Subtotal:</strong></td><td>₹ <Base_Amount_INR></td></tr>
-      <tr><td colspan="3" style="text-align:right"><strong>Special Discount:</strong></td><td style="color:#dc2626">- ₹ <Discount_INR></td></tr>
-      <tr><td colspan="3" style="text-align:right"><strong>Taxable Amount:</strong></td><td>₹ <Taxable_Amount_INR></td></tr>
-      <tr><td colspan="3" style="text-align:right"><strong>GST (18%):</strong></td><td>₹ <GST_Amount_INR></td></tr>
-      <tr class="total-row"><td colspan="3" style="text-align:right"><strong>Total Amount Due:</strong></td><td>₹ <Invoice_Total_INR></td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:12px;color:#94a3b8;margin-top:20px;">* Thank you for your business. Payment due within 15 days.</p>
-</div>
-</body>
-</html>`;
-
-  state.fileBase64 = btoa(unescape(encodeURIComponent(sampleHtml)));
-  state.fileName = 'Commercial_Tax_Invoice.html';
-  state.fileType = 'html';
-
-  state.vars = [
-    { tag: 'Client_Name', label: 'Billed Client Name', type: 'text', def: 'Global Logistics Pvt Ltd', formula: '', occurrences: [] },
-    { tag: 'Client_GSTIN', label: 'Client GSTIN Number', type: 'text', def: '36AAAAA0000A1Z5', formula: '', occurrences: [] },
-    { tag: 'Invoice_Number', label: 'Invoice Number', type: 'text', def: '2026-901', formula: '', occurrences: [] },
-    { tag: 'Invoice_Date', label: 'Invoice Date', type: 'date', def: '2026-09-22', formula: '', occurrences: [] },
-    { tag: 'Service_Description', label: 'Service Description', type: 'text', def: 'Enterprise Cloud ERP Software & Maintenance', formula: '', occurrences: [] },
-    { tag: 'Base_Amount_INR', label: 'Base Fee Amount (₹)', type: 'inr', def: '150000', formula: '', occurrences: [] },
-    { tag: 'Discount_INR', label: 'Discount Amount (₹)', type: 'inr', def: '15000', formula: '', occurrences: [] },
-    { tag: 'Taxable_Amount_INR', label: 'Taxable Amount (₹)', type: 'calculated', def: '135000', formula: 'Base_Amount_INR - Discount_INR', occurrences: [] },
-    { tag: 'GST_Amount_INR', label: 'GST 18% (₹)', type: 'calculated', def: '24300', formula: 'Taxable_Amount_INR * 0.18', occurrences: [] },
-    { tag: 'Invoice_Total_INR', label: 'Invoice Total (₹)', type: 'calculated', def: '159300', formula: 'Taxable_Amount_INR + GST_Amount_INR', occurrences: [] }
-  ];
-
-  showAlert('✅ Loaded Commercial Tax Invoice Template (10 variables with live formulas)!', 'success');
-  renderVariablesCleanTable();
-  goToStep(2);
 }
 
 /* VARIABLES TABLE */
@@ -566,10 +516,9 @@ function formatFriendlyLabel(tag) {
 function guessTypeByName(tag, formula) {
   if (formula && formula.trim().length > 0) return 'calculated';
   const t = tag.toLowerCase();
-  if (/cost|price|amount|inr|rs|fee|subsidy|total|tax|savings/.test(t)) return 'inr';
-  if (/net_cost|basic_cost|annual_|monthly_|savings_|units/.test(t)) return 'calculated';
-  if (/date|dob|valid/.test(t)) return 'date';
-  if (/kw|kwp|watt|capacity|load|rating|units/.test(t)) return 'number';
+  if (/cost|price|amount|inr|rs|fee|subsidy|total|tax|rate|subtotal|discount|balance/.test(t)) return 'inr';
+  if (/qty|quantity|units|count|area|sqft|hours|days/.test(t)) return 'number';
+  if (/date|dob|valid|deadline/.test(t)) return 'date';
   return 'text';
 }
 
@@ -578,33 +527,37 @@ function renderVariablesCleanTable() {
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  state.vars.forEach((v, idx) => {
+  state.vars.forEach((v, index) => {
     const tr = document.createElement('tr');
 
-    const typeOpts = FIELD_TYPES.map(t => 
-      `<option value="${t.val}" ${v.type === t.val ? 'selected' : ''}>${t.label}</option>`
+    const typeOptions = FIELD_TYPES.map(ft => 
+      `<option value="${ft.val}" ${v.type === ft.val ? 'selected' : ''}>${ft.label}</option>`
     ).join('');
 
-    const isCalc = v.type === 'calculated';
-
     tr.innerHTML = `
-      <td style="color:var(--text-dim);font-family:var(--font-mono);font-size:0.75rem">${idx + 1}</td>
-      <td><span class="tag-name-badge">&lt;${escapeHtml(v.tag)}&gt;</span></td>
+      <td style="color:var(--text-muted);font-size:0.8rem">${index + 1}</td>
       <td>
-        <input class="table-input" value="${escapeHtml(v.label)}" oninput="updateVarItem(${idx}, 'label', this.value)" style="min-width:140px">
+        <div class="tag-pill-badge">&lt;${escapeHtml(v.tag)}&gt;</div>
       </td>
       <td>
-        <select class="table-input" onchange="updateVarItem(${idx}, 'type', this.value); renderVariablesCleanTable();" style="min-width:140px">
-          ${typeOpts}
+        <input class="table-input" value="${escapeHtml(v.label)}" 
+          onchange="updateVarItem(${index}, 'label', this.value)" 
+          placeholder="Display label on form">
+      </td>
+      <td>
+        <select class="table-select" onchange="onVarTypeChanged(${index}, this.value)">
+          ${typeOptions}
         </select>
       </td>
       <td>
-        <input class="table-input" value="${escapeHtml(v.formula || '')}" oninput="updateVarItem(${idx}, 'formula', this.value)" 
-          placeholder="${isCalc ? 'e.g. Project_Cost - Subsidy' : 'optional formula'}"
-          style="min-width:180px;${isCalc ? 'border-color:rgba(16,185,129,0.5);background:rgba(16,185,129,0.06);' : ''}">
+        <input class="table-input ${v.type === 'calculated' ? 'formula' : ''}" 
+          id="varFormula_${index}" 
+          value="${escapeHtml(v.formula || v.def || '')}" 
+          onchange="updateVarItem(${index}, '${v.type === 'calculated' ? 'formula' : 'def'}', this.value)" 
+          placeholder="${v.type === 'calculated' ? 'e.g. Quantity * Rate' : 'Default value'}">
       </td>
       <td>
-        <button class="btn btn-ghost btn-sm" onclick="removeVarItem(${idx})" title="Remove field">✕</button>
+        <button class="delete-icon-btn" onclick="removeVarItem(${index})" title="Remove field">✕</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -614,6 +567,11 @@ function renderVariablesCleanTable() {
   if (secStep2) secStep2.style.display = 'block';
   const secStep3 = document.getElementById('sectionStep3');
   if (secStep3) secStep3.style.display = 'block';
+}
+
+function onVarTypeChanged(index, newType) {
+  state.vars[index].type = newType;
+  renderVariablesCleanTable();
 }
 
 function updateVarItem(index, field, value) {
@@ -630,8 +588,8 @@ function removeVarItem(index) {
 function addCustomVariable() {
   const num = state.vars.length + 1;
   state.vars.push({
-    tag: 'Custom_Field_' + num,
-    label: 'Custom Field ' + num,
+    tag: 'Field_' + num,
+    label: 'Field ' + num,
     type: 'text',
     formula: '',
     occurrences: []
@@ -651,29 +609,66 @@ function applyQuickFormula(formulaText) {
     renderVariablesCleanTable();
     showAlert(`Applied calculation to &lt;${targetVar.tag}&gt;: = ${expr}`, 'success');
   } else {
-    showAlert(`Variable &lt;${targetTag}&gt; not found. Formula copied to clipboard!`, 'info');
-    navigator.clipboard.writeText(expr);
+    state.vars.push({
+      tag: targetTag,
+      label: formatFriendlyLabel(targetTag),
+      type: 'calculated',
+      formula: expr,
+      occurrences: []
+    });
+    renderVariablesCleanTable();
+    showAlert(`Added calculated field &lt;${targetTag}&gt; = ${expr}`, 'success');
   }
+}
+
+/* THEME & LAYOUT SELECTION OPTIONS */
+function selectTheme(themeName) {
+  document.getElementById('cfgTheme').value = themeName;
+  ['dark-obsidian', 'corporate-light', 'midnight-blue', 'warm-paper', 'cyber-purple'].forEach(t => {
+    const card = document.getElementById('themeCard_' + t);
+    if (card) card.classList.toggle('selected', t === themeName);
+  });
+}
+
+function setAccentColor(hex) {
+  const picker = document.getElementById('cfgAccentColor');
+  if (picker) picker.value = hex;
+}
+
+function selectLayout(layoutName) {
+  document.getElementById('cfgLayout').value = layoutName;
+  ['split', 'form'].forEach(l => {
+    const card = document.getElementById('layoutCard_' + l);
+    if (card) card.classList.toggle('selected', l === layoutName);
+  });
 }
 
 /* STANDALONE APP COMPILER & GENERATOR */
 function getStudioConfig() {
-  const titleInput = document.getElementById('cfgAppTitle');
   const compInput = document.getElementById('cfgCompanyName');
+  const titleInput = document.getElementById('cfgAppTitle');
+  const subInput = document.getElementById('cfgDocSubtitle');
+  const iconInput = document.getElementById('cfgLogoIcon');
+  const themeInput = document.getElementById('cfgTheme');
   const colorInput = document.getElementById('cfgAccentColor');
+  const layoutInput = document.getElementById('cfgLayout');
 
   return {
-    title: (titleInput && titleInput.value) ? titleInput.value : 'Document Generator',
-    company: (compInput && compInput.value) ? compInput.value : 'EffiSol Energy Solutions',
+    company: (compInput && compInput.value) ? compInput.value : 'Apex Enterprises',
+    title: (titleInput && titleInput.value) ? titleInput.value : 'Quotation & Proposal Portal',
+    subtitle: (subInput && subInput.value) ? subInput.value : 'Official Commercial Quotation',
+    icon: (iconInput && iconInput.value) ? iconInput.value : '⚡',
+    theme: (themeInput && themeInput.value) ? themeInput.value : 'dark-obsidian',
     accentColor: (colorInput && colorInput.value) ? colorInput.value : '#FF9A2E',
-    templateType: state.fileType || 'pdf',
-    templateName: state.fileName || 'template.pdf'
+    layout: (layoutInput && layoutInput.value) ? layoutInput.value : 'split',
+    templateType: state.fileType || 'html',
+    templateName: state.fileName || 'template.html'
   };
 }
 
 function downloadCompiledApp() {
   if (state.vars.length === 0) {
-    alert('Please upload a template or click Demo first!');
+    alert('Please upload a template or click Blank Starter first!');
     goToStep(1);
     return;
   }
@@ -685,18 +680,18 @@ function downloadCompiledApp() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = cfg.title.replace(/[^a-zA-Z0-9_-]/g, '_') + '_Generator.html';
+  a.download = cfg.company.replace(/[^a-zA-Z0-9_-]/g, '_') + '_' + cfg.title.replace(/[^a-zA-Z0-9_-]/g, '_') + '.html';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 
-  showAlert(`🎉 <strong>${a.download}</strong> downloaded! Double-click to open in any browser!`, 'success');
+  showAlert(`🎉 <strong>${a.download}</strong> downloaded! Open in any browser!`, 'success');
 }
 
 function openLiveDemoModal() {
   if (state.vars.length === 0) {
-    alert('Please upload a template or click Demo first!');
+    alert('Please upload a template or click Blank Starter first!');
     goToStep(1);
     return;
   }
@@ -705,7 +700,10 @@ function openLiveDemoModal() {
   const html = compileStandaloneHtmlApp(cfg, state.vars, state.fileBase64);
 
   const title = document.getElementById('modalLiveDemoTitle');
-  if (title) title.textContent = cfg.title + ' — Live Test Preview';
+  if (title) title.textContent = `${cfg.company} — ${cfg.title} (Live Preview)`;
+  const icon = document.getElementById('modalLiveDemoIcon');
+  if (icon) icon.textContent = cfg.icon;
+
   const iframe = document.getElementById('liveDemoIframe');
   if (iframe) iframe.srcdoc = html;
 
@@ -724,6 +722,73 @@ function compileStandaloneHtmlApp(cfg, vars, templateBase64) {
   const accent = cfg.accentColor;
   const isPdf = cfg.templateType === 'pdf';
   const isDocx = cfg.templateType === 'docx';
+  const isHtml = cfg.templateType === 'html';
+  const isSplit = cfg.layout === 'split';
+
+  // Theme variable definitions
+  let themeCssVars = '';
+  if (cfg.theme === 'corporate-light') {
+    themeCssVars = `
+      --bg: #F8FAFC;
+      --surface: #FFFFFF;
+      --surface2: #F1F5F9;
+      --surface3: #E2E8F0;
+      --border: #CBD5E1;
+      --border-light: #E2E8F0;
+      --text: #0F172A;
+      --text-muted: #64748B;
+      --card-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    `;
+  } else if (cfg.theme === 'midnight-blue') {
+    themeCssVars = `
+      --bg: #0B1329;
+      --surface: #111C3D;
+      --surface2: #162447;
+      --surface3: #1F305E;
+      --border: #1E3A8A;
+      --border-light: #2563EB;
+      --text: #F0F9FF;
+      --text-muted: #7DD3FC;
+      --card-shadow: 0 8px 30px rgba(11,19,41,0.8);
+    `;
+  } else if (cfg.theme === 'warm-paper') {
+    themeCssVars = `
+      --bg: #FDFBF7;
+      --surface: #FFFFFF;
+      --surface2: #F7F4EB;
+      --surface3: #EDE8D8;
+      --border: #D8D2C2;
+      --border-light: #E5E0D4;
+      --text: #292524;
+      --text-muted: #78716C;
+      --card-shadow: 0 4px 16px rgba(41,37,36,0.06);
+    `;
+  } else if (cfg.theme === 'cyber-purple') {
+    themeCssVars = `
+      --bg: #0F0C20;
+      --surface: #171330;
+      --surface2: #1F1A40;
+      --surface3: #2A2454;
+      --border: #3B2D6E;
+      --border-light: #581C87;
+      --text: #FAF5FF;
+      --text-muted: #C084FC;
+      --card-shadow: 0 8px 30px rgba(15,12,32,0.8);
+    `;
+  } else {
+    // dark-obsidian default
+    themeCssVars = `
+      --bg: #090C15;
+      --surface: #101626;
+      --surface2: #162035;
+      --surface3: #1C2B47;
+      --border: #1E2D4A;
+      --border-light: #2A3F66;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --card-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    `;
+  }
 
   // Build calculation expressions
   let calcJs = '';
@@ -733,7 +798,7 @@ function compileStandaloneHtmlApp(cfg, vars, templateBase64) {
       var pat = '\\b' + escapeRegex(ov.tag) + '\\b';
       expr = expr.replace(new RegExp(pat, 'g'), `getFieldValue('${ov.tag}')`);
     });
-    expr = expr.replace(/\bround\b/g, 'Math.round');
+    expr = expr.replace(/\\bround\\b/g, 'Math.round');
     calcJs += `
     try {
       const calcVal_${v.tag} = ${expr};
@@ -756,11 +821,11 @@ function compileStandaloneHtmlApp(cfg, vars, templateBase64) {
     if (isCalc) {
       inputEl = `<input class="form-input calc-input" id="${id}" readonly value="${defVal}">`;
     } else if (v.type === 'inr' || v.type === 'number') {
-      inputEl = `<input type="text" class="form-input user-input" id="${id}" value="${defVal}" placeholder="Enter ${escapeHtml(v.label)}">`;
+      inputEl = `<input type="text" class="form-input user-input" id="${id}" value="${defVal}" placeholder="Enter ${escapeHtml(v.label)}" oninput="onFieldValueChanged()">`;
     } else if (v.type === 'date') {
-      inputEl = `<input type="date" class="form-input user-input" id="${id}" value="${defVal}">`;
+      inputEl = `<input type="date" class="form-input user-input" id="${id}" value="${defVal}" oninput="onFieldValueChanged()">`;
     } else {
-      inputEl = `<input type="text" class="form-input user-input" id="${id}" value="${defVal}" placeholder="Enter ${escapeHtml(v.label)}">`;
+      inputEl = `<input type="text" class="form-input user-input" id="${id}" value="${defVal}" placeholder="Enter ${escapeHtml(v.label)}" oninput="onFieldValueChanged()">`;
     }
 
     const calcNote = (isCalc && v.formula) ? `<div class="calc-formula-tag">= ${escapeHtml(v.formula)}</div>` : '';
@@ -779,25 +844,18 @@ function compileStandaloneHtmlApp(cfg, vars, templateBase64) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${escapeHtml(cfg.title)}</title>
+<title>${escapeHtml(cfg.company)} — ${escapeHtml(cfg.title)}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
 
-${isPdf ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"><\/script>' : ''}
-${isDocx ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"><\/script>' : ''}
+${isPdf ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js">' + '</' + 'script>' : ''}
+${isDocx ? '<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">' + '</' + 'script>' : ''}
 
 <style>
 :root {
-  --bg: #090C15;
-  --surface: #101626;
-  --surface2: #162035;
-  --surface3: #1C2B47;
-  --border: #1E2D4A;
-  --border-light: #2A3F66;
+  ${themeCssVars}
   --accent: ${accent};
-  --text: #F1F5F9;
-  --text-muted: #94A3B8;
-  --radius: 14px;
+  --radius: 12px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -805,151 +863,195 @@ body {
   color: var(--text);
   font-family: 'Inter', system-ui, sans-serif;
   min-height: 100vh;
-  padding: 30px 20px 80px;
-  background-image: radial-gradient(circle at 50% 0%, rgba(255,154,46,0.08) 0%, transparent 60%);
+  padding: 24px 20px 80px;
 }
-.app-box { max-width: 860px; margin: 0 auto; }
+.app-container {
+  max-width: ${isSplit ? '1380px' : '880px'};
+  margin: 0 auto;
+}
 .header-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 24px;
+  padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 14px;
 }
-.brand-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; }
-.brand-company { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.brand-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.35rem; font-weight: 700; }
+.brand-company { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+.main-layout {
+  display: ${isSplit ? 'grid' : 'block'};
+  grid-template-columns: ${isSplit ? '460px 1fr' : '1fr'};
+  gap: 24px;
+  align-items: start;
+}
+@media(max-width: 960px) {
+  .main-layout { grid-template-columns: 1fr; }
+}
 
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 24px;
+  padding: 22px;
   margin-bottom: 20px;
+  box-shadow: var(--card-shadow);
 }
 .fields-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 14px;
 }
-@media(max-width: 640px) { .fields-grid { grid-template-columns: 1fr; } }
+@media(max-width: 540px) { .fields-grid { grid-template-columns: 1fr; } }
 
-.field-group { display: flex; flex-direction: column; gap: 6px; }
-.field-label { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-label { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); }
 .form-input {
   background: var(--surface2);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   color: var(--text);
-  font-size: 0.9rem;
-  padding: 10px 14px;
+  font-size: 0.88rem;
+  padding: 9px 12px;
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
 }
-.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,154,46,0.15); }
+.form-input:focus { border-color: var(--accent); }
 .form-input.calc-input { background: var(--surface3); border-style: dashed; color: var(--accent); font-weight: 600; }
-.calc-formula-tag { font-size: 0.72rem; font-family: 'DM Mono', monospace; color: var(--text-muted); }
+.calc-formula-tag { font-size: 0.7rem; font-family: 'DM Mono', monospace; color: var(--text-muted); }
 
-.action-bar {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 14px;
-}
 .btn {
-  padding: 13px 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
   border-radius: 8px;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 0.9rem;
   cursor: pointer;
   border: none;
   transition: all 0.2s;
 }
-.btn-primary { background: var(--accent); color: #000; box-shadow: 0 4px 18px rgba(255,154,46,0.25); }
-.btn-primary:hover { transform: translateY(-2px); }
-.btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border-light); }
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-secondary { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
 .btn-secondary:hover { background: var(--surface3); }
 
+.doc-live-view {
+  background: #fff;
+  color: #0f172a;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.doc-live-header {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.doc-live-iframe {
+  width: 100%;
+  height: 650px;
+  border: none;
+  background: #fff;
+}
 .status-alert {
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 0.85rem;
-  margin-bottom: 16px;
+  margin-top: 14px;
   display: none;
-  background: rgba(16,185,129,0.12);
+  background: rgba(16,185,129,0.15);
   border: 1px solid rgba(16,185,129,0.3);
-  color: #6EE7B7;
+  color: #10B981;
 }
 </style>
 </head>
 <body>
 
-<div class="app-box">
+<div class="app-container">
   <div class="header-bar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:42px;height:42px;border-radius:10px;background:var(--accent);color:#000;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold">
+        ${escapeHtml(cfg.icon)}
+      </div>
+      <div>
+        <div class="brand-title">${escapeHtml(cfg.company)}</div>
+        <div class="brand-company">${escapeHtml(cfg.title)} · ${escapeHtml(cfg.subtitle)}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      ${isSplit ? '<button class="btn btn-primary" onclick="printLiveDocument()">🖨️ Print / Save Document</button>' : ''}
+    </div>
+  </div>
+
+  <div class="main-layout">
+    <!-- Form Side -->
     <div>
-      <div class="brand-title">${escapeHtml(cfg.title)}</div>
-      <div class="brand-company">${escapeHtml(cfg.company)}</div>
-    </div>
-    <div style="font-size:0.8rem;color:var(--text-muted)">100% Client-Side Generator</div>
-  </div>
+      <div class="card">
+        <h3 style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;margin-bottom:16px;color:var(--text)">
+          📝 Enter Quotation Details
+        </h3>
+        <div class="fields-grid">
+          ${fieldsHtml}
+        </div>
+      </div>
 
-  <div id="appStatus" class="status-alert"></div>
-
-  <div class="card">
-    <div class="fields-grid">
-      ${fieldsHtml}
+      <div class="card" style="text-align:center">
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+          ${isPdf ? '<button class="btn btn-primary" onclick="generatePdf()">📄 Generate &amp; Download PDF</button>' : ''}
+          ${isDocx ? '<button class="btn btn-primary" onclick="generateDocx()">📝 Download Word (.docx)</button>' : ''}
+          ${isHtml ? '<button class="btn btn-primary" onclick="printLiveDocument()">🖨️ Print / Save as PDF</button>' : ''}
+        </div>
+        <div id="appStatus" class="status-alert"></div>
+      </div>
     </div>
-  </div>
 
-  <div class="action-bar">
-    <div style="display:flex;gap:12px;flex-wrap:wrap">
-      ${isPdf ? '<button class="btn btn-primary" onclick="generatePdf()">📥 Download Official PDF</button>' : ''}
-      ${isDocx ? '<button class="btn btn-primary" onclick="generateDocx()">📥 Download Word Document</button>' : ''}
-      ${!isPdf && !isDocx ? '<button class="btn btn-primary" onclick="printDoc()">🖨️ Print / Save PDF</button>' : ''}
-      <button class="btn btn-secondary" onclick="saveMyDraft()">💾 Save Draft</button>
-      <button class="btn btn-secondary" onclick="resetMyForm()">🔄 Reset</button>
+    <!-- Live Document Side (for Split Layout) -->
+    ${isSplit ? `
+    <div class="doc-live-view">
+      <div class="doc-live-header">
+        <span style="font-size:0.8rem;font-weight:600;color:var(--text-muted)">📄 Live Quotation Document Preview</span>
+        <button class="btn btn-secondary" style="padding:6px 14px;font-size:0.8rem" onclick="printLiveDocument()">🖨️ Print / Save PDF</button>
+      </div>
+      <iframe class="doc-live-iframe" id="docPreviewIframe"></iframe>
     </div>
-    <div style="font-size:0.75rem;color:var(--text-muted)">Ready to Print &amp; Send</div>
+    ` : ''}
   </div>
 </div>
 
 <script>
+const VARS_LIST = ${JSON.stringify(vars)};
 const TEMPLATE_B64 = "${templateBase64}";
 const TEMPLATE_TYPE = "${cfg.templateType}";
-const VARS_LIST = ${JSON.stringify(vars)};
 
-function escapeRegex(s) {
+function escapeHtml(s) {
   if (!s) return '';
-  var specials = ['.', '*', '+', '?', '^', '$', '{', '}', '(', ')', '|', '[', ']', String.fromCharCode(92)];
-  var out = '';
-  for (var i = 0; i < s.length; i++) {
-    var ch = s.charAt(i);
-    if (specials.indexOf(ch) !== -1) out += String.fromCharCode(92);
-    out += ch;
-  }
-  return out;
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function getFieldValue(tag) {
   const el = document.getElementById('field_' + tag);
   if (!el) return 0;
-  const raw = el.value.toString().replace(/,/g, '').replace(/[^0-9.-]/g, '');
-  const n = parseFloat(raw);
+  const v = el.value.replace(/[^0-9.-]/g, '');
+  const n = parseFloat(v);
   return isNaN(n) ? 0 : n;
 }
 
 function formatNumber(n) {
-  if (isNaN(n)) return '';
-  return Math.round(n).toLocaleString('en-IN');
+  if (isNaN(n)) return '0';
+  return Number(n).toLocaleString('en-IN');
 }
 
 function runCalculations() {
@@ -957,21 +1059,68 @@ function runCalculations() {
 }
 
 function collectValues() {
-  runCalculations();
-  const res = {};
+  const vals = {};
   VARS_LIST.forEach(v => {
     const el = document.getElementById('field_' + v.tag);
-    if (el) res[v.tag] = el.value;
+    vals[v.tag] = el ? el.value : (v.def || '');
   });
-  return res;
+  return vals;
+}
+
+function onFieldValueChanged() {
+  runCalculations();
+  updateLiveDocumentPreview();
+}
+
+function updateLiveDocumentPreview() {
+  const iframe = document.getElementById('docPreviewIframe');
+  if (!iframe) return;
+
+  const vals = collectValues();
+  if (TEMPLATE_TYPE === 'html') {
+    let rawHtml = '';
+    try {
+      rawHtml = decodeURIComponent(escape(atob(TEMPLATE_B64)));
+    } catch(e) {
+      rawHtml = atob(TEMPLATE_B64);
+    }
+    Object.entries(vals).forEach(([tag, val]) => {
+      const reg = new RegExp('<\\s*' + tag + '(\\s*=[^>]*)?\\s*>', 'gi');
+      rawHtml = rawHtml.replace(reg, escapeHtml(val));
+    });
+    iframe.srcdoc = rawHtml;
+  }
+}
+
+function printLiveDocument() {
+  const iframe = document.getElementById('docPreviewIframe');
+  if (iframe && iframe.contentWindow) {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+  } else {
+    const vals = collectValues();
+    let rawHtml = '';
+    try { rawHtml = decodeURIComponent(escape(atob(TEMPLATE_B64))); } catch(e) { rawHtml = atob(TEMPLATE_B64); }
+    Object.entries(vals).forEach(([tag, val]) => {
+      const reg = new RegExp('<\\s*' + tag + '(\\s*=[^>]*)?\\s*>', 'gi');
+      rawHtml = rawHtml.replace(reg, escapeHtml(val));
+    });
+    const win = window.open('', '_blank');
+    win.document.write(rawHtml);
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 500);
+  }
 }
 
 function setAppStatus(msg) {
   const el = document.getElementById('appStatus');
+  if (!el) return;
   el.style.display = 'block';
   el.innerHTML = msg;
 }
 
+${isPdf ? `
 async function generatePdf() {
   setAppStatus('⏳ Generating official vector PDF document...');
   const vals = collectValues();
@@ -1012,8 +1161,8 @@ async function generatePdf() {
     }
 
     const modified = await pdfDoc.save();
-    const customer = (vals['Customer_Name'] || vals['Client'] || 'Proposal').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
-    const filename = 'Proposal_' + customer + '.pdf';
+    const customer = (vals['Customer_Name'] || vals['Client_Name'] || vals['Client'] || 'Document').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = '${escapeHtml(cfg.company.replace(/[^a-zA-Z0-9_-]/g, '_'))}_' + customer + '.pdf';
 
     const blob = new Blob([modified], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
@@ -1030,7 +1179,9 @@ async function generatePdf() {
     setAppStatus('❌ PDF Error: ' + err.message);
   }
 }
+` : ''}
 
+${isDocx ? `
 async function generateDocx() {
   setAppStatus('⏳ Generating Word document...');
   const vals = collectValues();
@@ -1040,34 +1191,23 @@ async function generateDocx() {
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-    const zip = await JSZip.loadAsync(bytes.buffer);
-    for (const fn of Object.keys(zip.files)) {
-      if (!fn.endsWith('.xml') && !fn.endsWith('.rels')) continue;
-      let xml = await zip.file(fn).async('string');
-
-      xml = xml.replace(/&lt;((?:[^&]|&(?!gt;|lt;))*?)&gt;/g, (m, inner) => {
-        const t = inner.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-        return t ? '&lt;' + t + '&gt;' : m;
-      });
-
-      Object.entries(vals).forEach(([tag, val]) => {
-        const safe = (val !== null && val !== undefined) ? String(val)
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') : '';
-        const escaped = escapeRegex(tag).replace(/ +/g, '\\s+');
-        xml = xml.replace(new RegExp('&lt;\\s*' + escaped + '\\s*&gt;', 'gi'), safe);
-      });
-
-      xml = xml.replace(/&lt;[A-Za-z0-9_ -]{1,60}&gt;/g, '');
-      zip.file(fn, xml);
+    const zip = await JSZip.loadAsync(bytes);
+    for (const filename of Object.keys(zip.files)) {
+      if (filename.endsWith('.xml')) {
+        let xml = await zip.file(filename).async('string');
+        Object.entries(vals).forEach(([tag, val]) => {
+          const reg = new RegExp('&lt;\\s*' + tag + '(\\s*=[^&]*)?\\s*&gt;', 'gi');
+          xml = xml.replace(reg, escapeHtml(val));
+        });
+        zip.file(filename, xml);
+      }
     }
 
-    const outputBlob = await zip.generateAsync({
-      type: 'blob',
-      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    });
+    const modified = await zip.generateAsync({ type: 'blob' });
+    const customer = (vals['Customer_Name'] || vals['Client_Name'] || vals['Client'] || 'Document').trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+    const filename = '${escapeHtml(cfg.company.replace(/[^a-zA-Z0-9_-]/g, '_'))}_' + customer + '.docx';
 
-    const filename = 'Document.docx';
-    const url = URL.createObjectURL(outputBlob);
+    const url = URL.createObjectURL(modified);
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
@@ -1076,76 +1216,26 @@ async function generateDocx() {
     document.body.removeChild(a);
     setTimeout(() => URL.revokeObjectURL(url), 1200);
 
-    setAppStatus('✅ Word document downloaded successfully!');
-  } catch(err) {
+    setAppStatus('✅ <strong>' + filename + '</strong> downloaded successfully!');
+  } catch (err) {
     setAppStatus('❌ DOCX Error: ' + err.message);
   }
 }
+` : ''}
 
-function printDoc() {
-  const vals = collectValues();
-  const binary = atob(TEMPLATE_B64);
-  let html = '';
-  try { html = decodeURIComponent(escape(binary)); } catch(e) { html = binary; }
-
-  Object.entries(vals).forEach(([tag, val]) => {
-    const escaped = escapeRegex(tag).replace(/ +/g, '\\s+');
-    html = html.replace(new RegExp('<\\s*' + escaped + '\\s*>', 'gi'), val || '');
-  });
-  html = html.replace(/<[A-Za-z0-9_ -]{1,60}>/g, '');
-
-  const win = window.open('', '_blank');
-  if (win) {
-    win.document.write(html);
-    win.document.close();
-    setTimeout(() => win.print(), 600);
-  }
-}
-
-function saveMyDraft() {
-  const vals = collectValues();
-  localStorage.setItem('docgen_saved_draft', JSON.stringify(vals));
-  setAppStatus('💾 Draft saved in browser!');
-}
-
-function loadMyDraft() {
-  const saved = localStorage.getItem('docgen_saved_draft');
-  if (!saved) return;
-  try {
-    const vals = JSON.parse(saved);
-    Object.entries(vals).forEach(([tag, val]) => {
-      const el = document.getElementById('field_' + tag);
-      if (el) el.value = val;
-    });
-    runCalculations();
-  } catch(e) {}
-}
-
-function resetMyForm() {
-  if (confirm('Reset form fields?')) {
-    VARS_LIST.forEach(v => {
-      const el = document.getElementById('field_' + v.tag);
-      if (el) el.value = v.def || '';
-    });
-    runCalculations();
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.user-input').forEach(inp => {
-    inp.addEventListener('input', runCalculations);
-  });
-  loadMyDraft();
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
   runCalculations();
+  updateLiveDocumentPreview();
 });
-<\/script>
+${'</' + 'script>'}
 </body>
 </html>`;
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.toString()
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
