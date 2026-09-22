@@ -1,4 +1,4 @@
-﻿<div class="app-wrapper">
+<div class="app-wrapper">
 
   <!-- TOPBAR -->
   <header class="topbar">
@@ -9,9 +9,17 @@
         <div class="brand-tagline">Turn Any Document into a Working Web App</div>
       </div>
     </div>
-    <button class="top-demo-btn" onclick="loadDemoProposal()">
-      ✨ Try 1-Click Solar Demo
-    </button>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="top-demo-btn" onclick="loadDemoProposal()">
+        ☀️ Solar Demo (PDF)
+      </button>
+      <button class="top-demo-btn" onclick="loadDemoConstruction()">
+        🏗️ Construction Demo
+      </button>
+      <button class="top-demo-btn" onclick="loadDemoInvoice()">
+        🧾 Tax Invoice Demo
+      </button>
+    </div>
   </header>
 
   <!-- HERO EXPLANATION -->
@@ -97,10 +105,13 @@
         🔍 Scan Variables in File
       </button>
       <button class="btn btn-secondary" onclick="loadDemoProposal()">
-        ✨ Try 1-Click Solar Proposal Demo (7-Page PDF)
+        ☀️ 1-Click Solar Proposal (7-Page PDF)
       </button>
-      <button class="btn btn-ghost" onclick="loadDemoHtml()">
-        ✨ Try Sample HTML Quotation
+      <button class="btn btn-ghost" onclick="loadDemoConstruction()">
+        🏗️ 1-Click Construction Quote (HTML)
+      </button>
+      <button class="btn btn-ghost" onclick="loadDemoInvoice()">
+        🧾 1-Click Tax Invoice (HTML)
       </button>
     </div>
 

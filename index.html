@@ -551,7 +551,7 @@ select.table-input { cursor: pointer; }
 </style>
 </head>
 <body>
-﻿<div class="app-wrapper">
+<div class="app-wrapper">
 
   <!-- TOPBAR -->
   <header class="topbar">
@@ -562,9 +562,17 @@ select.table-input { cursor: pointer; }
         <div class="brand-tagline">Turn Any Document into a Working Web App</div>
       </div>
     </div>
-    <button class="top-demo-btn" onclick="loadDemoProposal()">
-      ✨ Try 1-Click Solar Demo
-    </button>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="top-demo-btn" onclick="loadDemoProposal()">
+        ☀️ Solar Demo (PDF)
+      </button>
+      <button class="top-demo-btn" onclick="loadDemoConstruction()">
+        🏗️ Construction Demo
+      </button>
+      <button class="top-demo-btn" onclick="loadDemoInvoice()">
+        🧾 Tax Invoice Demo
+      </button>
+    </div>
   </header>
 
   <!-- HERO EXPLANATION -->
@@ -650,10 +658,13 @@ select.table-input { cursor: pointer; }
         🔍 Scan Variables in File
       </button>
       <button class="btn btn-secondary" onclick="loadDemoProposal()">
-        ✨ Try 1-Click Solar Proposal Demo (7-Page PDF)
+        ☀️ 1-Click Solar Proposal (7-Page PDF)
       </button>
-      <button class="btn btn-ghost" onclick="loadDemoHtml()">
-        ✨ Try Sample HTML Quotation
+      <button class="btn btn-ghost" onclick="loadDemoConstruction()">
+        🏗️ 1-Click Construction Quote (HTML)
+      </button>
+      <button class="btn btn-ghost" onclick="loadDemoInvoice()">
+        🧾 1-Click Tax Invoice (HTML)
       </button>
     </div>
 
@@ -1212,31 +1223,140 @@ function loadDemoProposal() {
 }
 
 function loadDemoHtml() {
+  loadDemoConstruction();
+}
+
+function loadDemoConstruction() {
   const sampleHtml = `<!DOCTYPE html>
 <html>
-<head><title>Quotation - <Customer_Name></title>
-<style>body{font-family:Arial;margin:40px;}.hdr{background:#FF9A2E;color:#fff;padding:20px;}</style>
+<head><title>Construction Quotation - <Client_Name></title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; color: #1e293b; background: #f8fafc; }
+  .card { max-width: 750px; margin: 0 auto; background: #fff; padding: 36px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+  .header { display: flex; justify-content: space-between; border-bottom: 2px solid #ea580c; padding-bottom: 16px; margin-bottom: 24px; }
+  .title { font-size: 24px; font-weight: bold; color: #ea580c; }
+  .subtitle { font-size: 14px; color: #64748b; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+  th { background: #f1f5f9; font-weight: 600; color: #334155; }
+  .total-row { font-weight: bold; font-size: 16px; background: #fff7ed; color: #c2410c; }
+  @media print { body { margin: 0; background: #fff; } .card { box-shadow: none; border: none; padding: 20px; } }
+</style>
 </head>
 <body>
-<div class="hdr"><h1>Quotation</h1><p>Client: <Customer_Name></p></div>
-<p>Project Cost: Rs. <Project_Cost_INR></p>
-<p>Subsidy: Rs. <Subsidy_INR></p>
-<p>Net Amount: Rs. <Net_Cost_INR></p>
+<div class="card">
+  <div class="header">
+    <div>
+      <div class="title">🏗️ Apex Infra & Builders</div>
+      <div class="subtitle">Commercial & Residential Construction Quotation</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-weight:600">Date: <Quote_Date></div>
+      <div style="color:#64748b;font-size:13px">Ref: APX-<Built_Up_Area_sqft></div>
+    </div>
+  </div>
+  <p><strong>Prepared for:</strong> <Client_Name></p>
+  <p><strong>Site Location:</strong> <Site_Address></p>
+  <table>
+    <thead><tr><th>Description</th><th>Rate / Sqft</th><th>Quantity</th><th>Amount (₹)</th></tr></thead>
+    <tbody>
+      <tr><td>Civil Construction & Finishing</td><td>₹ <Rate_Per_sqft></td><td><Built_Up_Area_sqft> sq.ft</td><td>₹ <Basic_Cost_INR></td></tr>
+      <tr><td>Architectural & MEP Services</td><td>Included</td><td>Lump sum</td><td>₹ 0</td></tr>
+      <tr><td colspan="3" style="text-align:right"><strong>Subtotal:</strong></td><td>₹ <Basic_Cost_INR></td></tr>
+      <tr><td colspan="3" style="text-align:right"><strong>GST (18%):</strong></td><td>₹ <GST_INR></td></tr>
+      <tr class="total-row"><td colspan="3" style="text-align:right"><strong>Grand Total Payable:</strong></td><td>₹ <Total_Cost_INR></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:#94a3b8;margin-top:20px;">* Validity: 30 days. Payment terms: 30% advance, balance milestone based.</p>
+</div>
 </body>
 </html>`;
 
   state.fileBase64 = btoa(unescape(encodeURIComponent(sampleHtml)));
-  state.fileName = 'Sample_Quotation.html';
+  state.fileName = 'Construction_Quotation.html';
   state.fileType = 'html';
 
   state.vars = [
-    { tag: 'Customer_Name', label: 'Client Name', type: 'text', def: 'Shri Rajesh Sharma', formula: '', occurrences: [] },
-    { tag: 'Project_Cost_INR', label: 'Project Cost (₹)', type: 'inr', def: '350000', formula: '', occurrences: [] },
-    { tag: 'Subsidy_INR', label: 'Government Subsidy (₹)', type: 'inr', def: '78000', formula: '', occurrences: [] },
-    { tag: 'Net_Cost_INR', label: 'Net Payable (₹)', type: 'calculated', def: '272000', formula: 'Project_Cost_INR - Subsidy_INR', occurrences: [] }
+    { tag: 'Client_Name', label: 'Client / Company Name', type: 'text', def: 'Mr. Ananya Verma', formula: '', occurrences: [] },
+    { tag: 'Site_Address', label: 'Project Site Location', type: 'text', def: 'Plot 42, Hitech City, Hyderabad', formula: '', occurrences: [] },
+    { tag: 'Quote_Date', label: 'Quotation Date', type: 'date', def: '2026-09-22', formula: '', occurrences: [] },
+    { tag: 'Built_Up_Area_sqft', label: 'Built-Up Area (sq.ft)', type: 'number', def: '2000', formula: '', occurrences: [] },
+    { tag: 'Rate_Per_sqft', label: 'Rate per sq.ft (₹)', type: 'number', def: '1850', formula: '', occurrences: [] },
+    { tag: 'Basic_Cost_INR', label: 'Subtotal Cost (₹)', type: 'calculated', def: '3700000', formula: 'Built_Up_Area_sqft * Rate_Per_sqft', occurrences: [] },
+    { tag: 'GST_INR', label: 'GST Amount 18% (₹)', type: 'calculated', def: '666000', formula: 'Basic_Cost_INR * 0.18', occurrences: [] },
+    { tag: 'Total_Cost_INR', label: 'Grand Total (₹)', type: 'calculated', def: '4366000', formula: 'Basic_Cost_INR + GST_INR', occurrences: [] }
   ];
 
-  showAlert('✅ Loaded Sample HTML Quotation with 4 variables!', 'success');
+  showAlert('✅ Loaded Construction Quotation Template (8 variables with live formulas)!', 'success');
+  renderVariablesCleanTable();
+  goToStep(2);
+}
+
+function loadDemoInvoice() {
+  const sampleHtml = `<!DOCTYPE html>
+<html>
+<head><title>Tax Invoice - <Client_Name></title>
+<style>
+  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 40px; color: #0f172a; background: #f8fafc; }
+  .card { max-width: 750px; margin: 0 auto; background: #fff; padding: 36px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
+  .header { display: flex; justify-content: space-between; border-bottom: 2px solid #2563eb; padding-bottom: 16px; margin-bottom: 24px; }
+  .title { font-size: 24px; font-weight: bold; color: #2563eb; }
+  .subtitle { font-size: 14px; color: #64748b; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+  th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+  th { background: #eff6ff; font-weight: 600; color: #1e40af; }
+  .total-row { font-weight: bold; font-size: 16px; background: #dbeafe; color: #1e3a8a; }
+  @media print { body { margin: 0; background: #fff; } .card { box-shadow: none; border: none; padding: 20px; } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="header">
+    <div>
+      <div class="title">🧾 TechCraft Solutions</div>
+      <div class="subtitle">Tax Invoice &amp; Commercial Billing</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-weight:600">Invoice: #INV-<Invoice_Number></div>
+      <div style="color:#64748b;font-size:13px">Date: <Invoice_Date></div>
+    </div>
+  </div>
+  <p><strong>Billed to:</strong> <Client_Name></p>
+  <p><strong>GSTIN:</strong> <Client_GSTIN></p>
+  <table>
+    <thead><tr><th>Item / Service</th><th>Qty / Units</th><th>Rate (₹)</th><th>Amount (₹)</th></tr></thead>
+    <tbody>
+      <tr><td><Service_Description></td><td>1</td><td>₹ <Base_Amount_INR></td><td>₹ <Base_Amount_INR></td></tr>
+      <tr><td colspan="3" style="text-align:right"><strong>Subtotal:</strong></td><td>₹ <Base_Amount_INR></td></tr>
+      <tr><td colspan="3" style="text-align:right"><strong>Special Discount:</strong></td><td style="color:#dc2626">- ₹ <Discount_INR></td></tr>
+      <tr><td colspan="3" style="text-align:right"><strong>Taxable Amount:</strong></td><td>₹ <Taxable_Amount_INR></td></tr>
+      <tr><td colspan="3" style="text-align:right"><strong>GST (18%):</strong></td><td>₹ <GST_Amount_INR></td></tr>
+      <tr class="total-row"><td colspan="3" style="text-align:right"><strong>Total Amount Due:</strong></td><td>₹ <Invoice_Total_INR></td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:#94a3b8;margin-top:20px;">* Thank you for your business. Payment due within 15 days.</p>
+</div>
+</body>
+</html>`;
+
+  state.fileBase64 = btoa(unescape(encodeURIComponent(sampleHtml)));
+  state.fileName = 'Commercial_Tax_Invoice.html';
+  state.fileType = 'html';
+
+  state.vars = [
+    { tag: 'Client_Name', label: 'Billed Client Name', type: 'text', def: 'Global Logistics Pvt Ltd', formula: '', occurrences: [] },
+    { tag: 'Client_GSTIN', label: 'Client GSTIN Number', type: 'text', def: '36AAAAA0000A1Z5', formula: '', occurrences: [] },
+    { tag: 'Invoice_Number', label: 'Invoice Number', type: 'text', def: '2026-901', formula: '', occurrences: [] },
+    { tag: 'Invoice_Date', label: 'Invoice Date', type: 'date', def: '2026-09-22', formula: '', occurrences: [] },
+    { tag: 'Service_Description', label: 'Service Description', type: 'text', def: 'Enterprise Cloud ERP Software & Maintenance', formula: '', occurrences: [] },
+    { tag: 'Base_Amount_INR', label: 'Base Fee Amount (₹)', type: 'inr', def: '150000', formula: '', occurrences: [] },
+    { tag: 'Discount_INR', label: 'Discount Amount (₹)', type: 'inr', def: '15000', formula: '', occurrences: [] },
+    { tag: 'Taxable_Amount_INR', label: 'Taxable Amount (₹)', type: 'calculated', def: '135000', formula: 'Base_Amount_INR - Discount_INR', occurrences: [] },
+    { tag: 'GST_Amount_INR', label: 'GST 18% (₹)', type: 'calculated', def: '24300', formula: 'Taxable_Amount_INR * 0.18', occurrences: [] },
+    { tag: 'Invoice_Total_INR', label: 'Invoice Total (₹)', type: 'calculated', def: '159300', formula: 'Taxable_Amount_INR + GST_Amount_INR', occurrences: [] }
+  ];
+
+  showAlert('✅ Loaded Commercial Tax Invoice Template (10 variables with live formulas)!', 'success');
   renderVariablesCleanTable();
   goToStep(2);
 }
